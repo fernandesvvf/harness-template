@@ -81,6 +81,33 @@ gera código → crítico: "tem SQL injection!" → gera de novo corrigido
 | fluxo previsível, passos fixos | Plan-Execute |
 | qualidade crítica, erro caro | Reflection |
 
+### O ciclo de referência (recuperar → perceber → planejar → agir → avaliar → persistir)
+
+Existe um **ciclo ideal** de um agente com memória:
+
+```
+recuperar contexto → perceber → planejar → agir → avaliar → persistir memória
+  "o que já sei"                                              "o que aprendi"
+```
+
+Cada arquitetura **enfatiza fases diferentes** desse ciclo — nenhuma tem as 6 caixas literais, e isso é esperado. O mapa:
+
+| Fase do ciclo | ReAct | Plan-Execute | Reflection |
+|---|---|---|---|
+| recuperar contexto | `recall` ✅ | — | — |
+| perceber | `agent` (junto) | `executor` | `generator` |
+| planejar | `agent` (junto) | `planner` ✅ | `generator` |
+| agir | `agent` ⇄ `tools` ✅ | `executor` ✅ | — |
+| **avaliar** | (implícito) | — | `critic` ✅ |
+| persistir memória | `persist` ✅ | — | — |
+
+Leitura:
+- **ReAct** cobre o ciclo mais completo (recupera → age → persiste); funde perceber+planejar+agir no nó `agent` (é da natureza do ReAct).
+- **Plan-Execute** destaca **planejar** (`planner`); executa mecânico.
+- **Reflection** personifica **avaliar** (`critic`) — é a fase que define essa arquitetura.
+
+Ou seja: o ciclo é obedecido **no agregado**. A memória (recuperar/persistir) está ligada hoje no preset **react**; nos outros é opt-in.
+
 ---
 
 ## 2. O grafo, os nós e o estado (LangGraph)
