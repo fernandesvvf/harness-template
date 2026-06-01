@@ -1,0 +1,31 @@
+{
+  "name": "@plan-execute-agent/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx --env-file=.env watch src/server.ts",
+    "build": "tsc --project tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "eval": "tsx --env-file=.env evals/run.ts"
+  },
+  "dependencies": {
+    "@harness/types": "*",
+    "@harness/harness": "*",
+    "@harness/memory": "*",
+    "@langchain/core": "^1.1.22",
+    "@langchain/langgraph": "1.1.3",
+    "@langchain/openai": "^1.2.9",
+    "langchain": "1.2.25",
+    "fastify": "^5.2.1",
+    "@fastify/cors": "^10.0.2",
+    "zod": "^3.24.1",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "tsx": "^4.19.2",
+    "@types/node": "^22.10.5"
+  }
+}
