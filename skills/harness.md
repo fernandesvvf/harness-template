@@ -37,6 +37,8 @@ npm run eval:datasets -- ../../../../packages/harness/evals/datasets/tool_select
 O preset implementa `InvokeForDataset` (em `evals/run-datasets.ts`) expondo o `Observed`
 (memória recuperada por tipo + tools chamadas + output).
 
+Criar/editar datasets: **`/craft-dataset <tipo> <nome>`** (valida schema + ground-truth).
+
 ## Suites — gate de qualidade (dataset + limiares)
 
 Uma **suite** amarra um dataset a **limiares** (min/max). É o contrato de qualidade:
@@ -56,6 +58,8 @@ npm run eval:suite -- ../../../../packages/harness/evals/suites/tool_selection.y
 ```
 
 Os nomes dos limiares são os **scores agregados** (média 0..1) dos scorers.
+
+Calibrar limiares com base em resultados reais: **`/tune-suite <nome>`** (não chute o min).
 
 ## Benchmark comparativo de arquiteturas
 

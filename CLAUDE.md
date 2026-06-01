@@ -78,6 +78,8 @@ Roda: `npm run eval` (turbo) ou `tsx packages/harness/src/runner.ts <contrato>`.
 | `/craft-spec <capability>` | Spec (O QUÊ) antes de construir — fonte do contrato de eval |
 | `/craft-tasks <capability>` | Lê o spec e deriva as craft-skills a rodar (TodoWrite) |
 | `/craft-contract <capability>` | Cria um contrato YAML com as 5 variações obrigatórias (deriva do spec) |
+| `/craft-dataset <tipo> <nome>` | Cria dataset de eval (memory/tool/behavior) com ground-truth |
+| `/tune-suite <nome>` | Calibra limiares da suite a partir dos resultados reais |
 | `/craft-memory <curta\|longa\|episodica\|contextual>` | Adiciona um tipo de memória + entrada no `memory.md` |
 | `/craft-prompt` `/craft-llm-node` `/craft-io-node` | Craft de nós (herdados do template antigo) |
 | `/craft-edge-conditions` `/craft-graph-state` `/craft-factory` | Craft de grafo/roteamento/DI |
