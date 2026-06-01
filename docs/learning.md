@@ -1,4 +1,4 @@
-# Conceitos — Guia para Iniciantes
+# Learning — Guia de Conceitos para Iniciantes
 
 Este guia explica, sem assumir conhecimento prévio, **o que é cada coisa neste workspace** e **por que existe**. Cada seção: analogia simples → o que é → exemplo prático → onde mora no código.
 
