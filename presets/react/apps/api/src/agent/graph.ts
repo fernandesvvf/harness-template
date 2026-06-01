@@ -74,14 +74,15 @@ export function buildAgentGraph(deps: AgentDeps) {
   const toolNode = new ToolNode(agentTools)
   const memoryEnabled = Boolean(longTerm || episodic || contextual)
 
-  return new StateGraph({ state: AgentStateAnnotation })
+  // Builder mutável: o nó/edge de persist só existe se há memória ligada
+  // (senão LangGraph recusa compilar — nó órfão).
+  const builder = new StateGraph({ state: AgentStateAnnotation })
     .addNode('guardrails', makeGuardrailsNode(guardrailsLlm))
     .addNode('blocked', blockedNode)
     .addNode('recall', makeRecallNode(longTerm, episodic, contextual))
     .addNode('agent', makeAgentNode(agentLlm, agentTools))
     .addNode('tools', toolNode)
     .addNode('evaluate', makeEvaluateNode(memoryLlm))
-    .addNode('persist', makePersistNode({ memoryLlm, longTerm, episodic, contextual, maxSteps: config.agent.reactMaxSteps }))
     .addEdge(START, 'guardrails')
     .addConditionalEdges('guardrails', (s: AgentState) => routeAfterGuardrails(s), {
       agent: 'recall', // passa pelo recall antes de raciocinar
@@ -90,16 +91,23 @@ export function buildAgentGraph(deps: AgentDeps) {
     .addEdge('blocked', END)
     .addEdge('recall', 'agent')
     // Loop ReAct: aplicação parcial do teto de steps (Configuration as Code).
-    // Ao terminar, vai pra fase "avaliar" (evaluate), depois persist (se há memória).
     .addConditionalEdges('agent', (s: AgentState) => routeAfterAgent(s, config.agent.reactMaxSteps), {
       tools: 'tools',
       end: 'evaluate',
     })
     .addEdge('tools', 'agent') // observação volta pro agente raciocinar
-    // ciclo: ...agir → AVALIAR → PERSISTIR. persist só se há memória ligada.
-    .addEdge('evaluate', memoryEnabled ? 'persist' : END)
-    .addEdge('persist', END)
-    .compile()
+
+  // ciclo: ...agir → AVALIAR → PERSISTIR (persist só se há memória ligada).
+  if (memoryEnabled) {
+    builder
+      .addNode('persist', makePersistNode({ memoryLlm, longTerm, episodic, contextual, maxSteps: config.agent.reactMaxSteps }))
+      .addEdge('evaluate', 'persist')
+      .addEdge('persist', END)
+  } else {
+    builder.addEdge('evaluate', END)
+  }
+
+  return builder.compile()
 }
 
 // reexport pro server/factory/evals montarem deps sem duplicar a lista
