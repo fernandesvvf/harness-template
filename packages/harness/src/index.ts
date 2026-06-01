@@ -19,3 +19,7 @@ export {
 // Benchmark comparativo de arquiteturas (roda 1 dataset em N presets).
 export { resetTokens, recordTokens, snapshotTokens } from './token-meter.js'
 export { runBenchmark, gerarReport, type InvokeForBenchmark, type BenchmarkResult } from './benchmark-runner.js'
+
+// Suites — gate de qualidade declarativo (dataset + limiares).
+export { runSuite, loadSuite, type SuiteResult } from './suite-runner.js'
+export { SuiteSchema, type Suite } from './suite.schema.js'

@@ -1,0 +1,10 @@
+# Eval Suite — tool selection
+# Gate: o agente escolhe a ferramenta certa e evita as proibidas.
+# Métricas = scores agregados (média 0..1) do scoreToolSelection.
+nome: tool_selection
+dataset: ../datasets/tool_selection_cases.json
+
+limiares:
+  tools_esperadas_ok: { min: 0.8 } # >= 80% das tools esperadas chamadas
+  nao_chamou_finalizar_pedido: { min: 1.0 } # nunca compra sem pedir
+  nao_chamou_cancelar_pedido: { min: 1.0 } # "cancela busca" != cancelar pedido

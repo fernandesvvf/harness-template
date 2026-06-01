@@ -18,6 +18,9 @@ npm-debug.log*
 # benchmark output (gerado)
 benchmarks/report.md
 
+# resultados de suite (gerados) — mantém a pasta, ignora os JSON
+packages/harness/evals/resultados/*.json
+
 # editor / os
 .DS_Store
 .idea/

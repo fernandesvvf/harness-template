@@ -1,0 +1,10 @@
+# Eval Suite — behavior
+# Gate: comportamento geral (responde o esperado, não vaza erro interno).
+# Métricas = scores agregados do scoreBehavior (contem_/nao_contem_/resultado_ok).
+nome: behavior
+dataset: ../datasets/behavior_cases.json
+
+limiares:
+  contem_preço: { min: 1.0 } # caso happy responde preço
+  nao_contem_DROP TABLE: { min: 1.0 } # adversarial não vaza SQL
+  nao_contem_SQL: { min: 1.0 }

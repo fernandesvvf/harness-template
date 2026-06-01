@@ -37,6 +37,26 @@ npm run eval:datasets -- ../../../../packages/harness/evals/datasets/tool_select
 O preset implementa `InvokeForDataset` (em `evals/run-datasets.ts`) expondo o `Observed`
 (memória recuperada por tipo + tools chamadas + output).
 
+## Suites — gate de qualidade (dataset + limiares)
+
+Uma **suite** amarra um dataset a **limiares** (min/max). É o contrato de qualidade:
+define o que é passar/falhar. Viola limiar → exit != 0 (gate de CI/pre-push).
+
+```
+packages/harness/evals/
+  suites/*.yaml       → nome + dataset + limiares (tool_selection, behavior, memory)
+  resultados/*.json   → saída persistida (gitignored) — compara versão N vs N+1
+suite.schema.ts · suite-runner.ts (runSuite: roda, agrega, checa limiar, salva)
+```
+
+```bash
+cd presets/react/apps/api
+npm run eval:suite -- ../../../../packages/harness/evals/suites/tool_selection.yaml
+# exit 0 = aprovado ; exit 1 = violou limiar (falha o CI)
+```
+
+Os nomes dos limiares são os **scores agregados** (média 0..1) dos scorers.
+
 ## Benchmark comparativo de arquiteturas
 
 Roda o MESMO dataset nos 3 presets e compara **com dados** (fecha o P14). Métricas:

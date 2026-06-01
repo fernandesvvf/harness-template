@@ -1,0 +1,10 @@
+# Eval Suite — memory impact
+# Gate: memória relevante recuperada (recall) sem poluir (precision).
+# Métricas = scores agregados do scoreMemory.
+# Requer um preset com memória ligada + EVAL_SCOPE_ID estável.
+nome: memory
+dataset: ../datasets/memory_impact_cases.json
+
+limiares:
+  precision_memoria: { min: 0.7 } # pouco ruído (guarda IRRELEVANTE)
+  # recall_* dependem de memória previamente populada; ajuste ao seu fluxo
