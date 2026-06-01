@@ -7,9 +7,13 @@ import { writeFileSync } from 'node:fs'
 import { loadDataset } from './dataset-runner.js'
 import type { Observed } from './scorers.js'
 import { resetTokens, snapshotTokens } from './token-meter.js'
+import { startTrace, pushScores, flushTraces } from './tracer.js'
 
-/** O preset roda 1 caso e devolve o que observou + se concluiu. */
-export type InvokeForBenchmark = (entrada: string) => Promise<{ obs: Observed; concluido: boolean }>
+/**
+ * O preset roda 1 caso e devolve o que observou + se concluiu.
+ * `callbacks` são plugados no graph.invoke → o run aparece no Langfuse (se configurado).
+ */
+export type InvokeForBenchmark = (entrada: string, callbacks: unknown[]) => Promise<{ obs: Observed; concluido: boolean }>
 
 interface CaseMetric {
   casoId: string
@@ -50,29 +54,43 @@ export async function runBenchmark(
 
   for (const caso of ds.casos) {
     const esperadas = ds.tipo === 'tool_selection' ? (caso as { tools_esperadas?: string[] }).tools_esperadas : undefined
+    // Trace por caso, tag da arquitetura → comparar react/plan/reflection no Langfuse.
+    const trace = startTrace(`benchmark-${arquitetura}`, ['benchmark', arquitetura, caso.id])
     resetTokens()
     const t0 = Date.now()
     let obs: Observed = { memoriaRecuperada: { fatos: [], episodios: [], licoes: [] }, toolsChamadas: [], output: '' }
     let concluido = false
     try {
-      const r = await invoke(caso.entrada)
+      const r = await invoke(caso.entrada, trace.callbacks)
       obs = r.obs
       concluido = r.concluido
     } catch {
       concluido = false
     }
     const tokens = snapshotTokens()
+    const tempoMs = Date.now() - t0
+    const cob = cobertura(esperadas, obs.toolsChamadas)
+    // Envia as métricas como scores do trace (aparecem no Langfuse junto do run).
+    const traceId = (trace.handler as { getTraceId?: () => string } | null)?.getTraceId?.()
+    await pushScores(traceId, [
+      { name: 'tokens', value: tokens.total },
+      { name: 'tempo_ms', value: tempoMs },
+      { name: 'concluido', value: Number(concluido) },
+      { name: 'cobertura_ferramentas', value: cob },
+    ])
     porCenario.push({
       casoId: caso.id,
       concluido,
       tokens: tokens.total,
       tokensPrompt: tokens.prompt,
-      tempoMs: Date.now() - t0,
+      tempoMs,
       toolsChamadas: obs.toolsChamadas.length,
-      cobertura: cobertura(esperadas, obs.toolsChamadas),
+      cobertura: cob,
     })
-    console.log(`  [${arquitetura}/${caso.id}] tokens=${tokens.total} tempo=${Date.now() - t0}ms concluido=${concluido}`)
+    console.log(`  [${arquitetura}/${caso.id}] tokens=${tokens.total} tempo=${tempoMs}ms concluido=${concluido}`)
   }
+
+  await flushTraces()
 
   const n = porCenario.length || 1
   const avg = (sel: (m: CaseMetric) => number) => Math.round(porCenario.reduce((a, m) => a + sel(m), 0) / n)

@@ -17,24 +17,34 @@ import { buildAgent as buildReflection } from '../presets/reflection/apps/api/sr
 const EMPTY: Observed = { memoriaRecuperada: { fatos: [], episodios: [], licoes: [] }, toolsChamadas: [], output: '' }
 
 // Adaptadores: cada preset normaliza a execução no Observed do benchmark.
-const reactInvoke: InvokeForBenchmark = async (entrada) => {
+// `callbacks` (Langfuse) são plugados no invoke → o run aparece no dashboard.
+const reactInvoke: InvokeForBenchmark = async (entrada, callbacks) => {
   const agent = buildReact()
-  const r = await agent.invoke({ question: entrada, scopeId: 'bench-react', runId: `b-${Date.now()}`, messages: [new HumanMessage(entrada)] })
+  const r = await agent.invoke(
+    { question: entrada, scopeId: 'bench-react', runId: `b-${Date.now()}`, messages: [new HumanMessage(entrada)] },
+    { callbacks: callbacks as never },
+  )
   const msgs = (r.messages ?? []) as BaseMessage[]
   const tools = msgs.filter((m): m is AIMessage => m instanceof AIMessage).flatMap((m) => (m.tool_calls ?? []).map((tc) => tc.name))
   return { obs: { ...EMPTY, toolsChamadas: tools, output: r.finalAnswer ?? '' }, concluido: Boolean(r.finalAnswer) && !r.isBlocked }
 }
 
-const planInvoke: InvokeForBenchmark = async (entrada) => {
+const planInvoke: InvokeForBenchmark = async (entrada, callbacks) => {
   const agent = buildPlan()
-  const r = await agent.invoke({ question: entrada, scopeId: 'bench-plan', runId: `b-${Date.now()}` })
+  const r = await agent.invoke(
+    { question: entrada, scopeId: 'bench-plan', runId: `b-${Date.now()}` },
+    { callbacks: callbacks as never },
+  )
   const tools = ((r.subResults ?? []) as { tool: string }[]).map((s) => s.tool)
   return { obs: { ...EMPTY, toolsChamadas: tools, output: r.finalAnswer ?? '' }, concluido: Boolean(r.finalAnswer) && !r.isBlocked }
 }
 
-const reflectionInvoke: InvokeForBenchmark = async (entrada) => {
+const reflectionInvoke: InvokeForBenchmark = async (entrada, callbacks) => {
   const agent = buildReflection()
-  const r = await agent.invoke({ question: entrada, scopeId: 'bench-reflection', runId: `b-${Date.now()}` })
+  const r = await agent.invoke(
+    { question: entrada, scopeId: 'bench-reflection', runId: `b-${Date.now()}` },
+    { callbacks: callbacks as never },
+  )
   return { obs: { ...EMPTY, output: r.finalAnswer ?? r.draft ?? '' }, concluido: Boolean(r.finalAnswer ?? r.draft) && !r.isBlocked }
 }
 

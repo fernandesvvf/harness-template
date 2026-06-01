@@ -103,6 +103,11 @@ npm run benchmark -- caminho/dataset.json
 O report marca o melhor por métrica em **negrito** + veredito (mais eficiente/rápido/cobertura).
 Tokens vêm do `usage_metadata` de cada chamada LLM (instrumentado no `OpenRouterService`).
 
+**Langfuse (opcional):** se as chaves estiverem configuradas, cada caso gera um trace
+com tag da arquitetura (`benchmark`, `react`/`plan`/`reflection`, caso) + scores (tokens,
+tempo, conclusão, cobertura) — dá pra comparar os 3 no dashboard. Sem chaves, roda igual
+(token-meter local). O `report.md` é gerado dos dois jeitos.
+
 ## Regra de ouro (contratos)
 
 ```
