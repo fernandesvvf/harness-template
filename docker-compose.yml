@@ -1,0 +1,80 @@
+# Infra do harness-template.
+# - postgres (pgvector): checkpointer LangGraph (CURTA cross-thread) + LONGA + EPISÓDICA + CONTEXTUAL
+# - langfuse + seu próprio postgres + clickhouse: observabilidade e scores do harness
+#
+# Um único Postgres de aplicação serve 3 dos 4 tipos de memória.
+# A extensão pgvector cobre o tipo CONTEXTUAL (busca por similaridade).
+services:
+  # ---------- Memória da aplicação (pgvector) ----------
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: harness-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: harness
+      POSTGRES_PASSWORD: harness
+      POSTGRES_DB: harness_memory
+    ports:
+      - "5432:5432"
+    volumes:
+      - harness_pg:/var/lib/postgresql/data
+      - ./infra/init-pgvector.sql:/docker-entrypoint-initdb.d/init-pgvector.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U harness -d harness_memory"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ---------- Observabilidade (Langfuse self-host) ----------
+  langfuse:
+    image: langfuse/langfuse:3
+    container_name: harness-langfuse
+    restart: unless-stopped
+    depends_on:
+      langfuse-db:
+        condition: service_healthy
+      langfuse-clickhouse:
+        condition: service_started
+    ports:
+      - "3030:3000"
+    environment:
+      DATABASE_URL: postgresql://langfuse:langfuse@langfuse-db:5432/langfuse
+      CLICKHOUSE_URL: http://langfuse-clickhouse:8123
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: ""
+      NEXTAUTH_URL: http://localhost:3030
+      NEXTAUTH_SECRET: dev-secret-change-me
+      SALT: dev-salt-change-me
+      ENCRYPTION_KEY: 0000000000000000000000000000000000000000000000000000000000000000
+
+  langfuse-db:
+    image: postgres:16
+    container_name: harness-langfuse-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: langfuse
+      POSTGRES_PASSWORD: langfuse
+      POSTGRES_DB: langfuse
+    volumes:
+      - harness_langfuse_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U langfuse -d langfuse"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  langfuse-clickhouse:
+    image: clickhouse/clickhouse-server:24
+    container_name: harness-clickhouse
+    restart: unless-stopped
+    volumes:
+      - harness_clickhouse:/var/lib/clickhouse
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+volumes:
+  harness_pg:
+  harness_langfuse_pg:
+  harness_clickhouse:

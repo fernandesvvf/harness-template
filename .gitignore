@@ -1,0 +1,21 @@
+# deps
+node_modules/
+
+# build / cache
+dist/
+.turbo/
+*.tsbuildinfo
+
+# env / secrets
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+
+# editor / os
+.DS_Store
+.idea/
+.vscode/

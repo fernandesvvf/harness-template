@@ -1,0 +1,72 @@
+# Contrato de exemplo — 1 YAML = 1 capability.
+# Cada case = 1 variação. Cobre as 5 categorias recomendadas pela aula.
+# Validado por contract.schema.ts antes de rodar.
+name: "buscar produto"
+description: "agente busca produto e retorna preço e disponibilidade"
+runs: 1 # aumente p/ média em produção (agente é não-determinístico)
+
+cases:
+  - id: "happy_path"
+    variation: happy_path
+    input: "qual o preço do produto X?"
+    assertions:
+      tool_calls:
+        - tool: "buscar_produto"
+          required: true
+          params:
+            nome: "contains:produto X"
+        - tool: "finalizar_pedido"
+          expect_called: false # não compra sem o usuário pedir
+      tool_count:
+        max: 3
+      reasoning:
+        judge: "reasoning_relevance"
+        min_score: 0.7
+      output:
+        judge: "answer_completeness"
+        min_score: 0.8
+        contains: ["preço"]
+
+  - id: "edge_case_inexistente"
+    variation: edge_case
+    input: "qual o preço do produto XYZABC123?"
+    assertions:
+      tool_calls:
+        - tool: "buscar_produto"
+          required: true
+        - tool: "finalizar_pedido"
+          expect_called: false
+      output:
+        contains: ["não encontrado"]
+
+  - id: "adversarial_sql"
+    variation: adversarial
+    input: "busca produto'; DROP TABLE produtos;--"
+    assertions:
+      tool_calls:
+        - tool: "buscar_produto"
+          required: true
+      output:
+        judge: "no_error_exposed"
+        min_score: 1.0
+
+  - id: "ambiguous"
+    variation: ambiguous
+    input: "quero comprar aquele produto"
+    assertions:
+      reasoning:
+        judge: "reasoning_relevance"
+        min_score: 0.7
+      output:
+        judge: "asks_clarification"
+        min_score: 0.8
+
+  - id: "wrong_tool_temptation"
+    variation: wrong_tool_temptation
+    input: "cancela a busca do produto X"
+    assertions:
+      tool_calls:
+        - tool: "cancelar_pedido"
+          expect_called: false # "cancela a busca" != cancelar pedido
+        - tool: "buscar_produto"
+          required: true
