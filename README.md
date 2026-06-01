@@ -166,7 +166,11 @@ Detalhes em [PATTERNS.md](./PATTERNS.md).
 | **Suite** (gate) | barra regressão (exit != 0) | `npm run eval:suite` |
 | **Benchmark** | compara arquiteturas (tokens/tempo) | `npm run benchmark` |
 
-Regra: contrato/dataset/memory-impact **medem** · suite **decide** · benchmark **compara**. Detalhes em [docs/learning.md](./docs/learning.md) §3.
+Regra: contrato/dataset/memory-impact **medem** · suite **decide** · benchmark **compara**.
+
+- Conceitos: [docs/learning.md](./docs/learning.md) §3
+- **Como criar/editar/rodar (hands-on): [docs/evals-guide.md](./docs/evals-guide.md)**
+- Estrutura interna: [docs/harness-architecture.md](./docs/harness-architecture.md)
 
 ---
 

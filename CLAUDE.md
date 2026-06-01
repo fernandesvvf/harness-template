@@ -68,6 +68,8 @@ Roda: `npm run eval` (turbo) ou `tsx packages/harness/src/runner.ts <contrato>`.
 - [PORTING.md](./PORTING.md) — núcleo portável vs adaptador de stack (trocar de framework)
 - [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) — o que foi validado em runtime + bugs/limitações conhecidos
 - [skills/INDEX.md](./skills/INDEX.md) — catálogo de skills
+- [docs/evals-guide.md](./docs/evals-guide.md) — tutorial hands-on: criar/editar/rodar contratos, datasets, suites, benchmark
+- [docs/harness-architecture.md](./docs/harness-architecture.md) — diagrama da estrutura do harness
 - [skills/harness.md](./skills/harness.md) — como escrever contratos e rodar evals
 - [skills/memory.md](./skills/memory.md) — os 4 tipos e suas políticas
 
