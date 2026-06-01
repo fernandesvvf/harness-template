@@ -151,16 +151,17 @@ Detalhes em [PATTERNS.md](./PATTERNS.md).
 
 ---
 
-## Harness — 4 modos de avaliação
+## Harness — 5 modos de avaliação
 
 | Modo | O quê | Comando |
 |---|---|---|
 | **Contrato** + juiz LLM | qualidade subjetiva por capability | `npm run eval` |
 | **Dataset** + scorer | acerto objetivo vs ground-truth | `npm run eval:datasets` |
+| **Memory-impact** | a memória *ajuda*? (com vs sem) | `npm run eval:memory` |
 | **Suite** (gate) | barra regressão (exit != 0) | `npm run eval:suite` |
 | **Benchmark** | compara arquiteturas (tokens/tempo) | `npm run benchmark` |
 
-Regra: contrato/dataset **medem** · suite **decide** · benchmark **compara**. Detalhes em [docs/learning.md](./docs/learning.md) §3.
+Regra: contrato/dataset/memory-impact **medem** · suite **decide** · benchmark **compara**. Detalhes em [docs/learning.md](./docs/learning.md) §3.
 
 ---
 

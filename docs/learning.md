@@ -168,7 +168,16 @@ Para cobrir o comportamento, cada capacidade tem:
 
 **Observabilidade (Langfuse):** além das notas, registra custo, tempo e o "raciocínio" de cada passo — pra você ver *por que* o agente fez o que fez.
 
-### 3d. Suites — o "contrato de qualidade" (o gate)
+### 3d. Impacto de memória — a memória *ajuda*?
+Recall mede se a memória trouxe os fatos certos. Mas e se trouxe e o agente ignorou? Ou inventou? O **memory-impact eval** roda cada caso **duas vezes — com e sem memória** — e compara:
+- **decision_improvement:** resolveu em menos passos com memória? (prova o cenário BOA)
+- **memory_utilization:** a resposta de fato usou o que foi recuperado?
+- **hallucination_from_memory:** inventou algo que não estava na memória nem na pergunta?
+- **lesson_quality:** as lições aprendidas são boas (não-vazias, generalizáveis)?
+
+É a diferença entre "lembrou o certo" e "lembrar fez diferença". Comando: `npm run eval:memory`.
+
+### 3e. Suites — o "contrato de qualidade" (o gate)
 Um dataset diz *quais casos*; uma **suite** diz *qual rigor*. Ela amarra um dataset a **limiares** (notas mínimas/máximas). Se o resultado fica abaixo do limiar → **falha** (o processo sai com erro). É o que vira **gate**: numa esteira de CI, o código não passa se a qualidade caiu.
 
 **Analogia:** o dataset é a prova; a suite é a nota de corte. Tirou abaixo da nota de corte, reprova.
@@ -182,10 +191,10 @@ limiares:
 ```
 Comando: `npm run eval:suite -- <suite>` → exit 0 (passou) ou exit 1 (violou). Calibrar o limiar não é chute — use `/tune-suite` (lê o resultado real e sugere a margem).
 
-### 3e. Resultados — histórico pra comparar versões
+### 3f. Resultados — histórico pra comparar versões
 Cada run de suite salva um JSON em `evals/resultados/`. Assim você compara **a versão de hoje com a de ontem**: a accuracy subiu ou caiu? Sem histórico, "melhorou" é achismo.
 
-### 3f. Benchmark — comparar arquiteturas com dados
+### 3g. Benchmark — comparar arquiteturas com dados
 Roda o **mesmo dataset nos 3 presets** e compara tokens (custo), tempo, conclusão e cobertura. É assim que você decide qual arquitetura usar **com números, não achismo** (fecha o conceito do item 1). Ex: Plan-Execute costuma gastar menos tokens que ReAct no mesmo problema. Gera `benchmarks/report.md` com veredito. Comando: `npm run benchmark`.
 
 ### Resumo: qual modo usar quando
@@ -194,6 +203,7 @@ Roda o **mesmo dataset nos 3 presets** e compara tokens (custo), tempo, conclus�
 |---|---|---|
 | avaliar qualidade subjetiva (a resposta é boa?) | **contrato** + juiz LLM | flexível |
 | medir acerto objetivo (acertou a tool? lembrou o fato?) | **dataset** + scorer | preciso, sem LLM |
+| saber se a **memória ajudou** (não só recuperou) | **memory-impact** (com vs sem) | decision_improvement |
 | **barrar regressão** (CI falha se piorar) | **suite** (gate) | exit != 0 |
 | acompanhar evolução entre versões | **resultados/** | histórico |
 | **escolher a arquitetura** com dados | **benchmark** | tokens/tempo |

@@ -7,7 +7,9 @@ import { logger } from '../utils/logger.js'
 import { buildAgentGraph } from './graph.js'
 
 // Memória opt-in (plan-execute usa só LONGA + EPISÓDICA — busca por filtro).
+// MEMORY_DISABLED=1 desliga tudo (baseline do memory-impact eval).
 function buildMemory() {
+  if (process.env.MEMORY_DISABLED === '1') return { longTerm: null, episodic: null }
   let contract
   try {
     contract = loadMemoryContract(resolve(process.cwd(), 'memory.md'))

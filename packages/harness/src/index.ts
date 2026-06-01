@@ -23,3 +23,7 @@ export { runBenchmark, gerarReport, type InvokeForBenchmark, type BenchmarkResul
 // Suites — gate de qualidade declarativo (dataset + limiares).
 export { runSuite, loadSuite, type SuiteResult } from './suite-runner.js'
 export { SuiteSchema, type Suite } from './suite.schema.js'
+
+// Memory-impact eval — mede o IMPACTO da memória (com vs sem). Prova o cenário BOA.
+export { runMemoryEval, type InvokeMemoryEval, type MemoryEvalResult } from './memory-eval-runner.js'
+export { scoreMemoryImpact, type MemoryRun } from './memory-eval.js'

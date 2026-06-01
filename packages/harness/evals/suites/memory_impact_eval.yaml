@@ -1,0 +1,17 @@
+# Eval Suite — Impacto de Memória (com vs sem memória)
+# Roda cada caso 2x (baseline sem memória + com memória) e mede o ganho.
+# Prova o cenário BOA com número: decision_improvement.
+dataset: memory_impact_cases.json
+
+comparativo:
+  baseline: execucao_sem_memoria
+  com_memoria: execucao_com_memoria
+
+# thresholds: maior=melhor (piso), exceto hallucination (teto).
+thresholds:
+  retrieval_precision: 0.8
+  retrieval_recall: 0.6
+  memory_utilization: 0.5
+  hallucination_from_memory: 0.05 # teto — abaixo disso é aceitável
+  decision_improvement: 0.0       # >= 0 = memória não piorou; > 0 = ajudou
+  lesson_quality: 0.4

@@ -10,6 +10,7 @@
     "eval": "tsx --env-file=.env evals/run.ts",
     "eval:datasets": "tsx --env-file=.env evals/run-datasets.ts",
     "eval:suite": "tsx --env-file=.env evals/run-suite.ts",
+    "eval:memory": "tsx --env-file=.env evals/run-memory-eval.ts",
     "smoke": "tsx --env-file=.env scripts/smoke-memory.ts",
     "consolidate-lessons": "tsx --env-file=.env scripts/consolidate-lessons.ts"
   },

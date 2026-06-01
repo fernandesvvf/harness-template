@@ -61,6 +61,27 @@ Os nomes dos limiares são os **scores agregados** (média 0..1) dos scorers.
 
 Calibrar limiares com base em resultados reais: **`/tune-suite <nome>`** (não chute o min).
 
+## Memory-impact eval — mede o IMPACTO da memória (com vs sem)
+
+Datasets/suites medem o que a memória *recupera*. O memory-impact mede se ela *ajuda*:
+roda cada caso **2x** (baseline `MEMORY_DISABLED=1` + com memória) e compara.
+
+Métricas: `retrieval_precision`, `retrieval_recall`, `memory_utilization` (a resposta
+usou o recuperado?), `hallucination_from_memory` (inventou citando memória?),
+`decision_improvement` (menos etapas com memória — prova o cenário BOA), `lesson_quality`.
+
+```
+packages/harness/memory-eval.ts (scorers) + memory-eval-runner.ts (roda 2x/caso)
+evals/suites/memory_impact_eval.yaml → dataset + thresholds
+```
+
+```bash
+cd presets/react/apps/api
+npm run eval:memory -- ../../../../packages/harness/evals/suites/memory_impact_eval.yaml
+```
+
+`MEMORY_DISABLED=1` (lido no `factory.ts`) desliga toda a memória → é o baseline.
+
 ## Benchmark comparativo de arquiteturas
 
 Roda o MESMO dataset nos 3 presets e compara **com dados** (fecha o P14). Métricas:

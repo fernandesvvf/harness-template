@@ -14,7 +14,11 @@ import { logger } from '../utils/logger.js'
 import { buildAgentGraph, tools } from './graph.js'
 
 // Memória opt-in: lê o memory.md do projeto e instancia só os tipos enabled.
+// MEMORY_DISABLED=1 desliga tudo (baseline do memory-impact eval: com vs sem memória).
 function buildMemory() {
+  if (process.env.MEMORY_DISABLED === '1') {
+    return { longTerm: null, episodic: null, contextual: null }
+  }
   let contract
   try {
     contract = loadMemoryContract(resolve(process.cwd(), 'memory.md'))
