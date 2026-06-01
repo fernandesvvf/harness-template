@@ -136,7 +136,7 @@ A "ficha" (estado) entra vazia, cada nó preenche um pedaço, sai completa no fi
 
 **O problema:** como o agente é não-determinístico, teste comum (passou/falhou) não basta. Precisamos de **notas** (0 a 1) e **vários casos**.
 
-**O que é:** a infraestrutura que **roda o agente em casos de teste e dá nota**. Tem três jeitos de medir:
+**O que é:** a infraestrutura que **roda o agente em casos de teste e dá nota**. Tem alguns jeitos de medir (contratos, datasets) + formas de organizar e usar essas notas (suites, benchmark):
 
 ### 3a. Contratos (YAML) + juiz LLM
 Um arquivo descreve uma capacidade e seus casos. Um "juiz" (outro LLM) dá nota à qualidade.
@@ -168,10 +168,39 @@ Para cobrir o comportamento, cada capacidade tem:
 
 **Observabilidade (Langfuse):** além das notas, registra custo, tempo e o "raciocínio" de cada passo — pra você ver *por que* o agente fez o que fez.
 
-### 3d. Benchmark — comparar arquiteturas com dados
+### 3d. Suites — o "contrato de qualidade" (o gate)
+Um dataset diz *quais casos*; uma **suite** diz *qual rigor*. Ela amarra um dataset a **limiares** (notas mínimas/máximas). Se o resultado fica abaixo do limiar → **falha** (o processo sai com erro). É o que vira **gate**: numa esteira de CI, o código não passa se a qualidade caiu.
+
+**Analogia:** o dataset é a prova; a suite é a nota de corte. Tirou abaixo da nota de corte, reprova.
+
+**Exemplo** (`suites/tool_selection.yaml`):
+```yaml
+dataset: ../datasets/tool_selection_cases.json
+limiares:
+  tools_esperadas_ok: { min: 0.8 }          # acerta a ferramenta >= 80%
+  nao_chamou_finalizar_pedido: { min: 1.0 } # nunca compra sem pedir (segurança)
+```
+Comando: `npm run eval:suite -- <suite>` → exit 0 (passou) ou exit 1 (violou). Calibrar o limiar não é chute — use `/tune-suite` (lê o resultado real e sugere a margem).
+
+### 3e. Resultados — histórico pra comparar versões
+Cada run de suite salva um JSON em `evals/resultados/`. Assim você compara **a versão de hoje com a de ontem**: a accuracy subiu ou caiu? Sem histórico, "melhorou" é achismo.
+
+### 3f. Benchmark — comparar arquiteturas com dados
 Roda o **mesmo dataset nos 3 presets** e compara tokens (custo), tempo, conclusão e cobertura. É assim que você decide qual arquitetura usar **com números, não achismo** (fecha o conceito do item 1). Ex: Plan-Execute costuma gastar menos tokens que ReAct no mesmo problema. Gera `benchmarks/report.md` com veredito. Comando: `npm run benchmark`.
 
-**Onde:** `packages/harness/` — `contracts/`, `evals/datasets/`, `runner.ts`, `scorers.ts`, `benchmark-runner.ts`, `token-meter.ts`.
+### Resumo: qual modo usar quando
+
+| Quero... | Use | Nota |
+|---|---|---|
+| avaliar qualidade subjetiva (a resposta é boa?) | **contrato** + juiz LLM | flexível |
+| medir acerto objetivo (acertou a tool? lembrou o fato?) | **dataset** + scorer | preciso, sem LLM |
+| **barrar regressão** (CI falha se piorar) | **suite** (gate) | exit != 0 |
+| acompanhar evolução entre versões | **resultados/** | histórico |
+| **escolher a arquitetura** com dados | **benchmark** | tokens/tempo |
+
+> Regra de ouro: contrato/dataset *medem*; suite *decide* (passa/falha); benchmark *compara*. "Só medindo pra saber em qual cenário você está."
+
+**Onde:** `packages/harness/` — `contracts/`, `evals/datasets/`, `evals/suites/`, `evals/resultados/`, `runner.ts`, `scorers.ts`, `suite-runner.ts`, `benchmark-runner.ts`, `token-meter.ts`.
 
 ---
 
