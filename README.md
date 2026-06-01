@@ -149,6 +149,8 @@ Skills são `.md` em `skills/commands/` — copie/symlinke para `~/.claude/comma
 
 Detalhes em [PATTERNS.md](./PATTERNS.md).
 
+> Quer trocar de stack no futuro? [PORTING.md](./PORTING.md) separa o **núcleo portável** (conceitos + formatos de dado + métricas) dos **adaptadores de stack** (LangGraph/pgvector/OpenRouter) — com mapa e checklist de migração.
+
 ---
 
 ## Harness — 5 modos de avaliação
