@@ -8,7 +8,7 @@ export const SummarySchema = z.object({ summary: z.string().min(1) })
 export type SummaryOutput = z.infer<typeof SummarySchema>
 
 const JSON_FORMAT_INSTRUCTION =
-  'Responda APENAS com um objeto JSON válido, sem markdown, sem blocos de código. Apenas o JSON puro.'
+  'Responda APENAS com um objeto JSON válido no formato {"summary": "..."}. Use exatamente a chave "summary" (em inglês). Sem markdown, sem blocos de código.'
 
 export function getSummarizeRunSystemPrompt(): string {
   return JSON.stringify({

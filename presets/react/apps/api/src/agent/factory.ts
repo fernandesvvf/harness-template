@@ -1,6 +1,7 @@
 // factory — único ponto de instanciação (P3 Factory + P2 DI).
 // new XService() só aparece aqui em todo o projeto.
 import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import {
   loadMemoryContract,
   LongTermMemoryService,
@@ -19,9 +20,13 @@ function buildMemory() {
   if (process.env.MEMORY_DISABLED === '1') {
     return { longTerm: null, episodic: null, contextual: null }
   }
+  // memory.md fica na raiz do preset (presets/react/), 4 níveis acima de src/agent.
+  // Resolvido relativo ao código (não ao cwd) — robusto a onde o processo roda.
+  const here = fileURLToPath(new URL('.', import.meta.url))
+  const memoryPath = resolve(here, '../../../../memory.md')
   let contract
   try {
-    contract = loadMemoryContract(resolve(process.cwd(), 'memory.md'))
+    contract = loadMemoryContract(memoryPath)
   } catch (err) {
     logger.warn({ err }, 'memory.md não carregado — memória persistida desabilitada')
     return { longTerm: null, episodic: null, contextual: null }

@@ -9,7 +9,8 @@ import { z } from 'zod/v3'
 export const EvaluateSchema = z.object({
   score: z.number().min(0).max(1),
   ok: z.boolean(),
-  motivo: z.string(),
+  // opcional: alguns modelos omitem; o que importa é score/ok (fail-open)
+  motivo: z.string().optional(),
 })
 export type EvaluateOutput = z.infer<typeof EvaluateSchema>
 
