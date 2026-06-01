@@ -37,6 +37,27 @@ npm run eval:datasets -- ../../../../packages/harness/evals/datasets/tool_select
 O preset implementa `InvokeForDataset` (em `evals/run-datasets.ts`) expondo o `Observed`
 (memória recuperada por tipo + tools chamadas + output).
 
+## Benchmark comparativo de arquiteturas
+
+Roda o MESMO dataset nos 3 presets e compara **com dados** (fecha o P14). Métricas:
+taxa de conclusão, **tokens** (custo), tempo, cobertura de ferramentas.
+
+```
+packages/harness/
+  token-meter.ts       → coleta tokens por execução (OpenRouterService reporta)
+  benchmark-runner.ts  → runBenchmark(arch, dataset, invoke) + gerarReport(report.md)
+scripts/benchmark.ts   → orquestra react + plan-execute + reflection
+benchmarks/report.md   → saída comparativa (gerada) com veredito
+```
+
+```bash
+npm run benchmark                         # dataset behavior_cases.json
+npm run benchmark -- caminho/dataset.json
+```
+
+O report marca o melhor por métrica em **negrito** + veredito (mais eficiente/rápido/cobertura).
+Tokens vêm do `usage_metadata` de cada chamada LLM (instrumentado no `OpenRouterService`).
+
 ## Regra de ouro (contratos)
 
 ```

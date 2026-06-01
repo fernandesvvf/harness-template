@@ -15,6 +15,9 @@ dist/
 *.log
 npm-debug.log*
 
+# benchmark output (gerado)
+benchmarks/report.md
+
 # editor / os
 .DS_Store
 .idea/

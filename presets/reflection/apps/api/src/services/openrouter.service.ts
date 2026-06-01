@@ -3,8 +3,15 @@
 import { ChatOpenAI } from '@langchain/openai'
 import { SystemMessage, HumanMessage } from '@langchain/core/messages'
 import type { z } from 'zod/v3'
+import { recordTokens } from '@harness/harness'
 import { config } from '../config.js'
 import { logger } from '../utils/logger.js'
+
+/** Reporta o usage de uma resposta LLM ao token-meter (benchmark de custo). */
+function recordUsage(response: { usage_metadata?: { input_tokens?: number; output_tokens?: number } }): void {
+  const u = response.usage_metadata
+  if (u) recordTokens(u.input_tokens ?? 0, u.output_tokens ?? 0)
+}
 
 function makeClient(modelName: string): ChatOpenAI {
   return new ChatOpenAI({
@@ -57,6 +64,7 @@ export class OpenRouterService {
     for (const { client, name } of clients) {
       try {
         const response = await client.invoke(messages)
+        recordUsage(response)
         const raw = typeof response.content === 'string'
           ? response.content.trim()
           : JSON.stringify(response.content)

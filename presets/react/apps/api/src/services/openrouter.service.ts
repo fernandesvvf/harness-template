@@ -2,8 +2,16 @@
 // Idêntico ao template antigo (PATTERNS: Strategy via generateStructured<T>).
 import { ChatOpenAI } from '@langchain/openai'
 import { SystemMessage, HumanMessage } from '@langchain/core/messages'
+import type { AIMessageChunk } from '@langchain/core/messages'
 import type { z } from 'zod/v3'
+import { recordTokens } from '@harness/harness'
 import { config } from '../config.js'
+
+/** Reporta o usage de uma resposta LLM ao token-meter (benchmark de custo). */
+export function recordUsage(response: { usage_metadata?: { input_tokens?: number; output_tokens?: number } } | AIMessageChunk): void {
+  const u = (response as { usage_metadata?: { input_tokens?: number; output_tokens?: number } }).usage_metadata
+  if (u) recordTokens(u.input_tokens ?? 0, u.output_tokens ?? 0)
+}
 import { logger } from '../utils/logger.js'
 
 function makeClient(modelName: string): ChatOpenAI {
@@ -57,6 +65,7 @@ export class OpenRouterService {
     for (const { client, name } of clients) {
       try {
         const response = await client.invoke(messages)
+        recordUsage(response)
         const raw = typeof response.content === 'string'
           ? response.content.trim()
           : JSON.stringify(response.content)

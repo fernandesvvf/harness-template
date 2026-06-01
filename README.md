@@ -85,6 +85,9 @@ npm run smoke
 
 # reflexão evolutiva nível 2 (padrões → fatos duráveis)
 npm run consolidate-lessons -- <scopeId>
+
+# benchmark comparativo — roda o mesmo dataset nos 3 presets → benchmarks/report.md
+npm run benchmark
 ```
 
 ---

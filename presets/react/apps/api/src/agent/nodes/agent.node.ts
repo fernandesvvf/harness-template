@@ -4,7 +4,7 @@
 import { SystemMessage, AIMessage } from '@langchain/core/messages'
 import type { BaseMessage } from '@langchain/core/messages'
 import type { StructuredToolInterface } from '@langchain/core/tools'
-import type { OpenRouterService } from '../../services/openrouter.service.js'
+import { type OpenRouterService, recordUsage } from '../../services/openrouter.service.js'
 import type { AgentState } from '../graph.js'
 import { logger } from '../../utils/logger.js'
 import { getAgentSystemPrompt } from '../../prompts/v1/agent.prompt.js'
@@ -24,6 +24,7 @@ export function makeAgentNode(llm: OpenRouterService, tools: StructuredToolInter
 
     try {
       const ai = (await model.invoke(messages)) as AIMessage
+      recordUsage(ai)
       const hasToolCalls = (ai.tool_calls ?? []).length > 0
 
       // Sem tool_calls = resposta final. Captura o texto pra finalAnswer (facilita eval).

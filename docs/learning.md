@@ -168,7 +168,10 @@ Para cobrir o comportamento, cada capacidade tem:
 
 **Observabilidade (Langfuse):** além das notas, registra custo, tempo e o "raciocínio" de cada passo — pra você ver *por que* o agente fez o que fez.
 
-**Onde:** `packages/harness/` — `contracts/`, `evals/datasets/`, `runner.ts`, `scorers.ts`.
+### 3d. Benchmark — comparar arquiteturas com dados
+Roda o **mesmo dataset nos 3 presets** e compara tokens (custo), tempo, conclusão e cobertura. É assim que você decide qual arquitetura usar **com números, não achismo** (fecha o conceito do item 1). Ex: Plan-Execute costuma gastar menos tokens que ReAct no mesmo problema. Gera `benchmarks/report.md` com veredito. Comando: `npm run benchmark`.
+
+**Onde:** `packages/harness/` — `contracts/`, `evals/datasets/`, `runner.ts`, `scorers.ts`, `benchmark-runner.ts`, `token-meter.ts`.
 
 ---
 

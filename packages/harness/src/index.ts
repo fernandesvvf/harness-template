@@ -15,3 +15,7 @@ export {
   type ToolCaseT,
   type BehaviorCaseT,
 } from './dataset.schema.js'
+
+// Benchmark comparativo de arquiteturas (roda 1 dataset em N presets).
+export { resetTokens, recordTokens, snapshotTokens } from './token-meter.js'
+export { runBenchmark, gerarReport, type InvokeForBenchmark, type BenchmarkResult } from './benchmark-runner.js'
