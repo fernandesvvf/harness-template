@@ -29,7 +29,7 @@ E, em cima, **Spec-Driven**: define o comportamento (O QUÊ) antes de construir.
 | **Plan-Execute** | `planner → executor* → synthesizer` | fluxo previsível, steps independentes, barato |
 | **Reflection** | `generator ⇄ critic` | qualidade crítica (código, jurídico, diagnóstico) |
 
-Cada preset é um `apps/api` LangGraph independente com `TEMPLATE.md` próprio. Os 3 seguem o ciclo `recuperar → perceber → planejar → agir → avaliar → persistir`. Memória é opt-in via `memory.md`: **react** já vem com tudo ligado (LONGA + EPISÓDICA + CONTEXTUAL + reflexão evolutiva); **plan-execute** usa memória enxuta (filtro); **reflection** usa o kit completo.
+Cada preset é um `apps/api` LangGraph independente com `TEMPLATE.md` + `architecture.md` (diagrama mermaid do grafo + evals) próprios. Diagrama do harness: [docs/harness-architecture.md](./docs/harness-architecture.md). Os 3 seguem o ciclo `recuperar → perceber → planejar → agir → avaliar → persistir`. Memória é opt-in via `memory.md`: **react** já vem com tudo ligado (LONGA + EPISÓDICA + CONTEXTUAL + reflexão evolutiva); **plan-execute** usa memória enxuta (filtro); **reflection** usa o kit completo.
 
 ---
 
