@@ -16,7 +16,10 @@ export function makeAgentNode(llm: OpenRouterService, tools: StructuredToolInter
 
   return async function agentNode(state: AgentState): Promise<Partial<AgentState>> {
     const history = state.messages ?? []
-    const messages: BaseMessage[] = [new SystemMessage(getAgentSystemPrompt()), ...history]
+    const messages: BaseMessage[] = [
+      new SystemMessage(getAgentSystemPrompt(state.memoryContext)),
+      ...history,
+    ]
     const stepCount = (state.stepCount ?? 0) + 1
 
     try {

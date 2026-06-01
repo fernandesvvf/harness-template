@@ -12,12 +12,13 @@ const agent = buildAgent()
 
 app.get('/health', async () => ({ status: 'ok', version: config.server.version }))
 
-app.post<{ Body: { question: string } }>('/chat', async (req, reply) => {
+app.post<{ Body: { question: string; userId?: string } }>('/chat', async (req, reply) => {
   const question = req.body?.question
   if (!question) return reply.code(400).send({ error: 'question é obrigatório' })
 
   const result = await agent.invoke({
     question,
+    userId: req.body?.userId ?? 'demo',
     messages: [new HumanMessage(question)],
   })
 

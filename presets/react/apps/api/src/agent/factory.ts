@@ -1,15 +1,50 @@
 // factory — único ponto de instanciação (P3 Factory + P2 DI).
 // new XService() só aparece aqui em todo o projeto.
+import { resolve } from 'node:path'
+import {
+  loadMemoryContract,
+  LongTermMemoryService,
+  ContextualMemoryService,
+} from '@harness/memory'
 import { OpenRouterService } from '../services/openrouter.service.js'
+import { makeEmbedder } from '../services/embedder.service.js'
 import { config } from '../config.js'
+import { logger } from '../utils/logger.js'
 import { buildAgentGraph, tools } from './graph.js'
 
+// Memória opt-in: lê o memory.md do projeto e instancia só os tipos enabled.
+function buildMemory() {
+  let contract
+  try {
+    contract = loadMemoryContract(resolve(process.cwd(), 'memory.md'))
+  } catch (err) {
+    logger.warn({ err }, 'memory.md não carregado — memória LONGA/CONTEXTUAL desabilitada')
+    return { longTerm: null, contextual: null }
+  }
+
+  const longTerm = contract.memorias.longa.enabled ? new LongTermMemoryService() : null
+
+  const ctxPolicy = contract.memorias.contextual
+  const contextual = ctxPolicy.enabled
+    ? new ContextualMemoryService(
+        makeEmbedder(),
+        { limiar: ctxPolicy.limiar, maxFragmentos: ctxPolicy.max_fragmentos },
+        config.memory.embeddingDim,
+      )
+    : null
+
+  return { longTerm, contextual }
+}
+
 export function buildAgent() {
+  const { longTerm, contextual } = buildMemory()
   const deps = {
     // Um OpenRouterService por nó LLM (modelo especializado + isolamento de rate limit).
     guardrailsLlm: new OpenRouterService(config.models.guardrails),
     agentLlm: new OpenRouterService(config.models.agent),
     tools,
+    longTerm,
+    contextual,
   }
   return buildAgentGraph(deps)
 }

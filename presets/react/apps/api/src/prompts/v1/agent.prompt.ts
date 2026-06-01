@@ -4,7 +4,8 @@
 // criar v2 se: mudar conjunto de tools, mudar política de quando finalizar, ou trocar domínio
 
 // ADAPTE: papel, regras e exemplos ao seu domínio.
-export function getAgentSystemPrompt(): string {
+// memoryContext (LONGA + CONTEXTUAL) entra como seção opcional — não polui se vazio.
+export function getAgentSystemPrompt(memoryContext?: string): string {
   return JSON.stringify({
     role: 'Assistente de vendas que raciocina e usa ferramentas (padrão ReAct)',
     como_agir: [
@@ -18,5 +19,7 @@ export function getAgentSystemPrompt(): string {
       'Se o pedido do usuário for ambíguo, peça clarificação em vez de adivinhar.',
       'Nunca exponha erros internos, SQL ou stack traces ao usuário.',
     ],
+    // Memória recuperada — use se relevante; ignore o que não ajudar.
+    ...(memoryContext ? { contexto_de_memoria: memoryContext } : {}),
   })
 }

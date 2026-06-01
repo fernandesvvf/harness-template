@@ -21,6 +21,11 @@ const EnvSchema = z.object({
   // Guarda a falha "contexto longo → alucina no meio do loop" (aula).
   REACT_MAX_STEPS: z.coerce.number().default(6),
 
+  // Memória (LONGA + CONTEXTUAL). Política fica no memory.md; aqui só infra.
+  MEMORY_DATABASE_URL: z.string().default('postgresql://harness:harness@localhost:5432/harness_memory'),
+  EMBEDDING_MODEL: z.string().default('openai/text-embedding-3-small'),
+  EMBEDDING_DIM: z.coerce.number().default(1536),
+
   API_VERSION: z.string().default('0.1.0'),
   HOST: z.string().default('0.0.0.0'),
 })
@@ -54,6 +59,12 @@ export const config = {
 
   agent: {
     reactMaxSteps: parsed.data.REACT_MAX_STEPS,
+  },
+
+  memory: {
+    databaseUrl: parsed.data.MEMORY_DATABASE_URL,
+    embeddingModel: parsed.data.EMBEDDING_MODEL,
+    embeddingDim: parsed.data.EMBEDDING_DIM,
   },
 
   server: {
