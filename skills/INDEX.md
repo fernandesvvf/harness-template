@@ -7,7 +7,8 @@ Os comandos ficam em `skills/commands/*.md`. Copie/symlinke pra `~/.claude/comma
 | Skill | Cria/faz | Documentação |
 |---|---|---|
 | `/scaffold-architecture <react\|plan\|reflection>` | Scaffolda um preset novo a partir do template da arquitetura | [architectures.md](./architectures.md) |
-| `/craft-contract <capability>` | Contrato YAML com as 5 variações obrigatórias | [harness.md](./harness.md) |
+| `/craft-spec <capability>` | Spec (O QUÊ) antes de construir — fonte do contrato de eval | [harness.md](./harness.md) |
+| `/craft-contract <capability>` | Contrato YAML com as 5 variações obrigatórias (deriva do spec) | [harness.md](./harness.md) |
 | `/craft-memory <curta\|longa\|episodica\|contextual>` | Adiciona um tipo de memória + entrada no `memory.md` | [memory.md](./memory.md) |
 
 ## Herdados (craft de nós/grafo)

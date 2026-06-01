@@ -704,6 +704,44 @@ Sempre que o agente precisar lembrar algo além da execução atual. Comece com 
 
 ---
 
+## 17. Spec-Driven Development
+
+### O que é
+Define o **comportamento esperado** (O QUÊ) numa spec legível antes de escrever código. É o par do P15 (Harness): spec define o quê, harness define como verificar.
+
+### Problema que resolve
+Craft de nós sem spec gera código tecnicamente correto mas sem âncora de intenção — e o eval sai solto, desalinhado do que o nó deveria fazer. A spec dá alvo aos craft-nodes e fonte ao contrato de eval.
+
+### Como aparece no projeto
+
+```
+spec.template.md                      → modelo do spec
+presets/<preset>/specs/<cap>.spec.md  → spec da capability (O QUÊ)
+packages/harness/contracts/<cap>.yaml → contrato derivado do spec (COMO VERIFICAR)
+```
+
+As 5 variações de eval na spec (happy/edge/adversarial/ambiguous/wrong_tool) viram quase diretamente o contrato YAML.
+
+### O fluxo
+
+```
+/craft-spec       ← define comportamento + variações de eval
+   ↓
+/craft-* (nós)    ← implementam com a spec como alvo
+   ↓
+/craft-contract   ← deriva da spec
+   ↓
+/check-principles
+```
+
+### Relação com P14 e P15
+P14 escolhe a arquitetura; a spec registra essa escolha + o comportamento; P15 (harness) verifica que o comportamento bate. Os três fecham o ciclo: decidir → especificar → verificar.
+
+### Quando usar
+Antes de adicionar qualquer capability nova a um preset. Spec primeiro = menos retrabalho, eval alinhado.
+
+---
+
 ## Para Aprofundar
 
 | Padrão | Livro / Recurso |
@@ -714,3 +752,4 @@ Sempre que o agente precisar lembrar algo além da execução atual. Comece com 
 | Imutabilidade e estado | *Designing Data-Intensive Applications* — Martin Kleppmann |
 | Schema-First / Contract-First | *API Design Patterns* — JJ Geewax |
 | Pure Functions | *Mostly Adequate Guide to Functional Programming* — Professor Frisby (gratuito online) |
+| Spec-Driven Development | material da pós: `harness-engineering.md` (spec define O QUÊ) |

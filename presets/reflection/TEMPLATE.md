@@ -62,6 +62,7 @@ npm run eval
 ```
 
 ## Checklist
+- [ ] Spec da capability escrito antes (`/craft-spec` → `specs/<cap>.spec.md`)
 - [ ] `critic.prompt.ts` com critérios ESPECÍFICOS do domínio
 - [ ] `REFLECTION_MAX_ITER` definido (sem loop infinito)
 - [ ] self ou cross escolhido via `CRITIC_MODEL`

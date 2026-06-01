@@ -63,6 +63,7 @@ Por padrão usa só **CURTA** (estado do grafo, `messages`). Para adicionar LONG
 
 ## Checklist
 
+- [ ] Spec da capability escrito antes (`/craft-spec` → `specs/<cap>.spec.md`)
 - [ ] `tools/index.ts` com ferramentas reais do domínio
 - [ ] `agent.prompt.ts` e `guardrails.prompt.ts` adaptados
 - [ ] `REACT_MAX_STEPS` ajustado ao domínio

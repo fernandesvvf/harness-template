@@ -3,10 +3,18 @@
 Skills que adicionam peças a projetos LangGraph existentes.
 Cada skill garante que o código gerado segue os princípios do PATTERNS.md.
 
-**Ordem recomendada ao implementar um novo nó:**
+**Ordem recomendada ao adicionar uma capability (spec-driven):**
 ```
+/craft-spec  ← O QUÊ (define comportamento + as 5 variações de eval)
+   ↓
 /craft-prompt → /craft-llm-node (ou /craft-io-node) → /craft-edge-conditions → /craft-graph-state → /craft-factory
+   ↓
+/craft-contract  ← COMO VERIFICAR (deriva do spec)
+   ↓
+/craft-memory <tipo>  ← se a capability precisar de memória persistida
 ```
+
+O spec ancora a intenção; o contrato verifica; os craft-nodes implementam. Sem o spec, o código fica sem alvo e o eval sai solto. Ver `spec.template.md` e `skills/commands/craft-spec.md`.
 
 ---
 

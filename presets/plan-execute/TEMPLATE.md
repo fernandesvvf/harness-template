@@ -63,6 +63,7 @@ npm run eval
 ```
 
 ## Checklist
+- [ ] Spec da capability escrito antes (`/craft-spec` → `specs/<cap>.spec.md`)
 - [ ] `tools/registry.ts` com tools reais
 - [ ] `planner.prompt.ts` lista as tools e dá exemplos de plano
 - [ ] `PLANNER_MAX_STEPS` ajustado
