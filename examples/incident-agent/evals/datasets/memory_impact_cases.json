@@ -1,0 +1,35 @@
+[
+  {
+    "id": "mem-001",
+    "entrada": "alerta de latência no serviço de pagamentos",
+    "contexto_esperado": {
+      "fatos_relevantes": ["pagamentos usa PostgreSQL", "SLO 200ms p99"],
+      "episodios_relevantes": ["deploy v2.3.1 sem canary causou latência"],
+      "licoes_relevantes": ["verificar deploys recentes no início"]
+    },
+    "decisao_esperada": "verificar deploy recente primeiro",
+    "resultado_esperado": "deploy"
+  },
+  {
+    "id": "mem-002",
+    "entrada": "erro 500 intermitente no serviço de pedidos",
+    "contexto_esperado": {
+      "fatos_relevantes": ["pedidos usa pool de conexões com timeout 30s"],
+      "episodios_relevantes": ["pool de conexões esgotado"],
+      "licoes_relevantes": ["verificar recursos de infraestrutura"]
+    },
+    "decisao_esperada": "verificar pool de conexões",
+    "resultado_esperado": "pool"
+  },
+  {
+    "id": "mem-003",
+    "entrada": "timeout no serviço de autenticação",
+    "contexto_esperado": {
+      "fatos_relevantes": [],
+      "episodios_relevantes": [],
+      "licoes_relevantes": ["logs de alta volumetria demoram para indexar"]
+    },
+    "decisao_esperada": "investigar métricas primeiro, aguardar antes de consultar logs",
+    "resultado_esperado": ""
+  }
+]

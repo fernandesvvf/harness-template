@@ -5,6 +5,7 @@
   "type": "module",
   "workspaces": [
     "presets/*/apps/*",
+    "examples/*/apps/*",
     "packages/*"
   ],
   "scripts": {

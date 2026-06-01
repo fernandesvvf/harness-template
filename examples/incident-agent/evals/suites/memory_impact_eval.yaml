@@ -1,0 +1,12 @@
+# Suite — impacto de memória do incident-agent (com vs sem memória)
+dataset: memory_impact_cases.json
+comparativo:
+  baseline: execucao_sem_memoria
+  com_memoria: execucao_com_memoria
+thresholds:
+  retrieval_precision: 0.6
+  retrieval_recall: 0.4
+  memory_utilization: 0.4
+  hallucination_from_memory: 0.1
+  decision_improvement: 0.0
+  lesson_quality: 0.4

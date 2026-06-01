@@ -17,6 +17,7 @@ Construído a partir do material da pós sobre runtime de agentes — traduz os 
 E, em cima, **Spec-Driven**: define o comportamento (O QUÊ) antes de construir.
 
 > Novo no assunto? Comece por [docs/learning.md](./docs/learning.md) — explica cada conceito do zero, com analogias e exemplos.
+> Quer ver rodando? [examples/incident-agent](./examples/incident-agent/) — exemplo completo clone-e-rode (agente SRE) com os 3 pilares + os 5 modos de eval.
 
 ---
 
@@ -45,6 +46,8 @@ harness-template/
 │   │   └── evals/        datasets/ (casos) · suites/ (gate) · resultados/ (histórico)
 │   ├── memory/           4 tipos (3 services + CURTA no state) + memory.md loader
 │   └── types/            tipos compartilhados
+├── examples/
+│   └── incident-agent/   exemplo completo rodável (clone-e-rode) — agente SRE
 ├── scripts/benchmark.ts  compara os 3 presets no mesmo dataset
 ├── benchmarks/           report.md comparativo (gerado)
 ├── skills/               catálogo de skills (commands/) + docs por categoria

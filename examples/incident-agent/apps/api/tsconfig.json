@@ -1,0 +1,14 @@
+{
+  "extends": "../../../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "outDir": "dist",
+    "exactOptionalPropertyTypes": false,
+    "paths": {
+      "@harness/types": ["../../../../packages/types/src/index.ts"],
+      "@harness/harness": ["../../../../packages/harness/src/index.ts"],
+      "@harness/memory": ["../../../../packages/memory/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*", "evals/**/*", "scripts/**/*"]
+}
