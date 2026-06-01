@@ -16,6 +16,8 @@ Construído a partir do material da pós sobre runtime de agentes — traduz os 
 
 E, em cima, **Spec-Driven**: define o comportamento (O QUÊ) antes de construir.
 
+> Novo no assunto? Comece por [docs/CONCEITOS.md](./docs/CONCEITOS.md) — explica cada conceito do zero, com analogias e exemplos.
+
 ---
 
 ## Presets (arquiteturas cognitivas)
