@@ -16,6 +16,8 @@ const EnvSchema = z.object({
   // Modelos por nó LLM
   GUARDRAILS_MODEL: z.string().default('anthropic/claude-haiku-4-5-20251001'),
   AGENT_MODEL: z.string().default('anthropic/claude-sonnet-4-6'),
+  // LLM de escrita de memória (extração de fatos + resumo) — modelo barato basta.
+  MEMORY_MODEL: z.string().default('anthropic/claude-haiku-4-5-20251001'),
 
   // Parâmetro central do ReAct: teto de iterações do loop.
   // Guarda a falha "contexto longo → alucina no meio do loop" (aula).
@@ -55,6 +57,7 @@ export const config = {
   models: {
     guardrails: parsed.data.GUARDRAILS_MODEL,
     agent: parsed.data.AGENT_MODEL,
+    memory: parsed.data.MEMORY_MODEL,
   },
 
   agent: {

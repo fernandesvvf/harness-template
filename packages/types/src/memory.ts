@@ -6,9 +6,18 @@ export type MemoryType = 'curta' | 'longa' | 'episodica' | 'contextual'
 /** Como cada tipo é persistido fisicamente. */
 export type MemoryImpl = 'local' | 'arquivo' | 'embedding'
 
+/**
+ * Chave de partição da memória — quem/o-que "possui" essa memória.
+ * Genérico de propósito: não assume chat.
+ *   chat:         scopeId = userId
+ *   automação:    scopeId = tenantId | jobName | "global"
+ *   multi-tenant: scopeId = orgId
+ */
+export type ScopeId = string
+
 /** Fato confirmado do domínio (LONGA — "caderno", persiste sempre). */
 export interface LongTermFact {
-  userId: string
+  scopeId: ScopeId
   key: string
   value: string
   updatedAt: string
@@ -16,7 +25,7 @@ export interface LongTermFact {
 
 /** Resumo de uma execução passada (EPISÓDICA — "diário", ttl configurável). */
 export interface EpisodicSummary {
-  userId: string
+  scopeId: ScopeId
   runId: string
   summary: string
   createdAt: string

@@ -3,7 +3,8 @@
 //
 // A política (limiar, max_fragmentos) guarda o cenário IRRELEVANTE:
 // "limiar baixo demais polui o contexto". Fragmentos abaixo do limiar são descartados.
-import type { ContextualFragment } from '@harness/types'
+// Particionável por scopeId (opcional — null = base global compartilhada).
+import type { ContextualFragment, ScopeId } from '@harness/types'
 import { getPool } from './pool.js'
 
 /** Injeta o provedor de embedding (DI) — o serviço não conhece o modelo. */
@@ -31,6 +32,7 @@ export class ContextualMemoryService {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS contextual_fragments (
         id        TEXT PRIMARY KEY,
+        scope_id  TEXT,
         content   TEXT NOT NULL,
         embedding vector(${this.dim}) NOT NULL,
         metadata  JSONB
@@ -39,31 +41,41 @@ export class ContextualMemoryService {
     this.ready = true
   }
 
-  /** Indexa um fragmento. */
-  async index(id: string, content: string, metadata?: Record<string, unknown>): Promise<void> {
+  /** Indexa um fragmento. scopeId opcional (null = global). */
+  async index(
+    id: string,
+    content: string,
+    opts?: { scopeId?: ScopeId; metadata?: Record<string, unknown> },
+  ): Promise<void> {
     await this.setup()
     const vec = await this.embed(content)
     await getPool().query(
-      `INSERT INTO contextual_fragments (id, content, embedding, metadata)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT (id) DO UPDATE SET content = EXCLUDED.content, embedding = EXCLUDED.embedding, metadata = EXCLUDED.metadata`,
-      [id, content, JSON.stringify(vec), metadata ? JSON.stringify(metadata) : null],
+      `INSERT INTO contextual_fragments (id, scope_id, content, embedding, metadata)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (id) DO UPDATE SET scope_id = EXCLUDED.scope_id, content = EXCLUDED.content, embedding = EXCLUDED.embedding, metadata = EXCLUDED.metadata`,
+      [id, opts?.scopeId ?? null, content, JSON.stringify(vec), opts?.metadata ? JSON.stringify(opts.metadata) : null],
     )
   }
 
   /**
    * Busca por similaridade. Aplica limiar + max_fragmentos da política.
-   * Usa distância de cosseno (<=>) do pgvector; score = 1 - distância.
+   * Cosseno (<=>) do pgvector; score = 1 - distância.
+   * Se scopeId passado, busca nesse scope + nos globais (scope_id IS NULL).
    */
-  async query(text: string): Promise<ContextualFragment[]> {
+  async query(text: string, scopeId?: ScopeId): Promise<ContextualFragment[]> {
     await this.setup()
     const vec = await this.embed(text)
+    const scopeFilter = scopeId ? `WHERE scope_id = $3 OR scope_id IS NULL` : ``
+    const params = scopeId
+      ? [JSON.stringify(vec), this.policy.maxFragmentos, scopeId]
+      : [JSON.stringify(vec), this.policy.maxFragmentos]
     const { rows } = await getPool().query(
       `SELECT id, content, metadata, 1 - (embedding <=> $1) AS score
        FROM contextual_fragments
+       ${scopeFilter}
        ORDER BY embedding <=> $1
        LIMIT $2`,
-      [JSON.stringify(vec), this.policy.maxFragmentos],
+      params,
     )
     return rows
       .map((r) => ({

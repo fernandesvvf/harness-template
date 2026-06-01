@@ -18,10 +18,10 @@ memorias:
     enabled: true
     store: pg
 
-  # EPISÓDICA — resumos de execuções. Desligada neste preset.
+  # EPISÓDICA — resumos de execuções. Gravada no nó persist, lida no recall.
   episodica:
     tipo: arquivo
-    enabled: false
+    enabled: true
     store: pg
     ttl_dias: 30
 
@@ -37,17 +37,20 @@ memorias:
 ## Como funciona neste preset
 
 ```
-guardrails → recall → agent ⇄ tools → END
-              │
-              ├─ LONGA: getContextForPrompt(userId) → fatos conhecidos
-              └─ CONTEXTUAL: query(question) → trechos relevantes (limiar aplicado)
-                    ↓
-              memoryContext injetado no system prompt do agent
+guardrails → recall → agent ⇄ tools → persist → END
+              │                          │
+   LEITURA    │                          │  ESCRITA
+   ├ LONGA: getContextForPrompt(scopeId) ├ LONGA: LLM extrai fatos duráveis → upsert
+   ├ EPISÓDICA: resumos recentes         ├ EPISÓDICA: LLM resume execução → store(runId)
+   └ CONTEXTUAL: query(question,scopeId) └ CONTEXTUAL: indexa resposta final
+        ↓ memoryContext no system prompt
 ```
 
-- `userId` vem no body do `/chat` (default `demo`).
+- `scopeId` vem no body do `/chat` (default `global`). Genérico: chat manda `userId`,
+  automação manda `tenant`/`job`. `runId` é gerado por execução.
+- Leitura no nó **recall** (antes do agent); escrita no nó **persist** (antes do END).
 - Subir Postgres+pgvector: `docker-compose up -d postgres`.
-- Ajustar `limiar`/`max_fragmentos` aqui muda o comportamento sem tocar código (Configuration as Code).
+- Ajustar `limiar`/`max_fragmentos`/`ttl_dias` aqui muda comportamento sem tocar código.
 
 ## Medir (cenários da aula)
 

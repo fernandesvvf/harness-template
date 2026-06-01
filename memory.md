@@ -39,6 +39,17 @@ memorias:
     max_fragmentos: 5    # teto por consulta (guarda cenário IRRELEVANTE)
 ```
 
+## Dois modos de buscar memória
+
+A aula distingue duas formas de recuperar — cada tipo usa a sua:
+
+| Modo | Como busca | Tipos que usam | Quando |
+|---|---|---|---|
+| **Filtro** | igualdade exata (`WHERE scope_id = ...`) | LONGA, EPISÓDICA | você sabe a chave; quer tudo daquele escopo |
+| **Significado (semântica)** | similaridade de embedding (`<=>` cosseno) | CONTEXTUAL | você tem uma pergunta; quer o que for *parecido* |
+
+Filtro é determinístico e barato. Semântica acha o relevante sem chave exata, mas precisa de limiar pra não trazer ruído (cenário IRRELEVANTE). No preset react, o nó `recall` combina os dois: filtro pra LONGA/EPISÓDICA + semântica pra CONTEXTUAL.
+
 ## Os 3 cenários (slide) — por que medir
 
 | Cenário | O que acontece | Política que mitiga |

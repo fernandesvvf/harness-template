@@ -4,6 +4,7 @@ import { resolve } from 'node:path'
 import {
   loadMemoryContract,
   LongTermMemoryService,
+  EpisodicMemoryService,
   ContextualMemoryService,
 } from '@harness/memory'
 import { OpenRouterService } from '../services/openrouter.service.js'
@@ -18,11 +19,14 @@ function buildMemory() {
   try {
     contract = loadMemoryContract(resolve(process.cwd(), 'memory.md'))
   } catch (err) {
-    logger.warn({ err }, 'memory.md não carregado — memória LONGA/CONTEXTUAL desabilitada')
-    return { longTerm: null, contextual: null }
+    logger.warn({ err }, 'memory.md não carregado — memória persistida desabilitada')
+    return { longTerm: null, episodic: null, contextual: null }
   }
 
   const longTerm = contract.memorias.longa.enabled ? new LongTermMemoryService() : null
+
+  const epPolicy = contract.memorias.episodica
+  const episodic = epPolicy.enabled ? new EpisodicMemoryService(epPolicy.ttl_dias) : null
 
   const ctxPolicy = contract.memorias.contextual
   const contextual = ctxPolicy.enabled
@@ -33,17 +37,22 @@ function buildMemory() {
       )
     : null
 
-  return { longTerm, contextual }
+  return { longTerm, episodic, contextual }
 }
 
 export function buildAgent() {
-  const { longTerm, contextual } = buildMemory()
+  const { longTerm, episodic, contextual } = buildMemory()
+  const memoryEnabled = Boolean(longTerm || episodic || contextual)
+
   const deps = {
     // Um OpenRouterService por nó LLM (modelo especializado + isolamento de rate limit).
     guardrailsLlm: new OpenRouterService(config.models.guardrails),
     agentLlm: new OpenRouterService(config.models.agent),
+    // LLM de escrita de memória — só instancia se há memória persistida ligada.
+    memoryLlm: memoryEnabled ? new OpenRouterService(config.models.memory) : null,
     tools,
     longTerm,
+    episodic,
     contextual,
   }
   return buildAgentGraph(deps)

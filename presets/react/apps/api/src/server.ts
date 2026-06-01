@@ -12,13 +12,15 @@ const agent = buildAgent()
 
 app.get('/health', async () => ({ status: 'ok', version: config.server.version }))
 
-app.post<{ Body: { question: string; userId?: string } }>('/chat', async (req, reply) => {
+app.post<{ Body: { question: string; scopeId?: string } }>('/chat', async (req, reply) => {
   const question = req.body?.question
   if (!question) return reply.code(400).send({ error: 'question é obrigatório' })
 
   const result = await agent.invoke({
     question,
-    userId: req.body?.userId ?? 'demo',
+    // scopeId genérico: chat manda userId; automação manda tenant/job; default global.
+    scopeId: req.body?.scopeId ?? 'global',
+    runId: `run-${Date.now()}`,
     messages: [new HumanMessage(question)],
   })
 
