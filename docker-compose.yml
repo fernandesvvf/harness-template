@@ -1,6 +1,6 @@
 # Infra do harness-template.
 # - postgres (pgvector): checkpointer LangGraph (CURTA cross-thread) + LONGA + EPISÓDICA + CONTEXTUAL
-# - langfuse + seu próprio postgres + clickhouse: observabilidade e scores do harness
+# - langfuse (v2) + seu próprio postgres: observabilidade e scores do harness
 #
 # Um único Postgres de aplicação serve 3 dos 4 tipos de memória.
 # A extensão pgvector cobre o tipo CONTEXTUAL (busca por similaridade).

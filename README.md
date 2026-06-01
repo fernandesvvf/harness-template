@@ -172,4 +172,13 @@ Regra: contrato/dataset/memory-impact **medem** · suite **decide** · benchmark
 
 ## Status
 
-Os 6 pacotes passam `turbo typecheck`. A execução em runtime (contra Postgres + OpenRouter reais) depende de Docker + `OPENROUTER_API_KEY` configurados — use `npm run smoke` / `eval` / `eval:datasets` / `eval:suite` / `benchmark` para validar.
+`turbo typecheck` verde nos 7 pacotes. **Validado em runtime** (react preset, contra Postgres + OpenRouter + Langfuse reais):
+
+- ✅ ReAct loop + tools + guardrails (smoke 1-4)
+- ✅ memória 4-tipos + pgvector + reflexão evolutiva (escrita/leitura entre execuções)
+- ✅ harness: contrato + judges + dataset + benchmark (tokens reais)
+- ✅ Langfuse: traces + scores + custo no dashboard (v2 self-host)
+
+Limitações conhecidas e o que ainda não foi validado: [KNOWN_ISSUES.md](./KNOWN_ISSUES.md).
+
+Rodar: Docker + `OPENROUTER_API_KEY` no `.env` → `npm run smoke` / `eval` / `eval:datasets` / `eval:suite` / `eval:memory` / `benchmark`.

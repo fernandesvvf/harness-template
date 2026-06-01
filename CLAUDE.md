@@ -66,6 +66,7 @@ Roda: `npm run eval` (turbo) ou `tsx packages/harness/src/runner.ts <contrato>`.
 - [PATTERNS.md](./PATTERNS.md) — princípios arquiteturais (P1–P17) com exemplos correto/errado
 - [docs/learning.md](./docs/learning.md) — guia de conceitos para iniciantes
 - [PORTING.md](./PORTING.md) — núcleo portável vs adaptador de stack (trocar de framework)
+- [KNOWN_ISSUES.md](./KNOWN_ISSUES.md) — o que foi validado em runtime + bugs/limitações conhecidos
 - [skills/INDEX.md](./skills/INDEX.md) — catálogo de skills
 - [skills/harness.md](./skills/harness.md) — como escrever contratos e rodar evals
 - [skills/memory.md](./skills/memory.md) — os 4 tipos e suas políticas
