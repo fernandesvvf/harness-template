@@ -28,7 +28,7 @@ E, em cima, **Spec-Driven**: define o comportamento (O QUÊ) antes de construir.
 | **Plan-Execute** | `planner → executor* → synthesizer` | fluxo previsível, steps independentes, barato |
 | **Reflection** | `generator ⇄ critic` | qualidade crítica (código, jurídico, diagnóstico) |
 
-Cada preset é um `apps/api` LangGraph independente com `TEMPLATE.md` próprio. O preset **react** já vem com memória ligada (LONGA + EPISÓDICA + CONTEXTUAL) e reflexão evolutiva como referência.
+Cada preset é um `apps/api` LangGraph independente com `TEMPLATE.md` próprio. Os 3 seguem o ciclo `recuperar → perceber → planejar → agir → avaliar → persistir`. Memória é opt-in via `memory.md`: **react** já vem com tudo ligado (LONGA + EPISÓDICA + CONTEXTUAL + reflexão evolutiva); **plan-execute** usa memória enxuta (filtro); **reflection** usa o kit completo.
 
 ---
 
@@ -41,9 +41,12 @@ harness-template/
 │   ├── plan-execute/
 │   └── reflection/
 ├── packages/
-│   ├── harness/          runner + contratos YAML + datasets + judges + scorers + Langfuse
+│   ├── harness/          contratos + datasets + suites + scorers + judges + benchmark + Langfuse
+│   │   └── evals/        datasets/ (casos) · suites/ (gate) · resultados/ (histórico)
 │   ├── memory/           4 tipos (3 services + CURTA no state) + memory.md loader
 │   └── types/            tipos compartilhados
+├── scripts/benchmark.ts  compara os 3 presets no mesmo dataset
+├── benchmarks/           report.md comparativo (gerado)
 ├── skills/               catálogo de skills (commands/) + docs por categoria
 ├── docker-compose.yml    Postgres+pgvector + Langfuse self-host
 ├── memory.md             contrato dos 4 tipos de memória
@@ -79,6 +82,9 @@ npm run eval -- ../../../../packages/harness/src/contracts/buscar_produto.yaml
 
 # datasets (score objetivo vs ground-truth)
 npm run eval:datasets -- ../../../../packages/harness/evals/datasets/tool_selection_cases.json
+
+# suite (gate de qualidade — exit != 0 se violar limiar; serve de CI)
+npm run eval:suite -- ../../../../packages/harness/evals/suites/tool_selection.yaml
 
 # memória ponta a ponta (escrita + leitura entre execuções)
 npm run smoke
@@ -125,6 +131,8 @@ Governados por `memory.md` (política validada por Zod). Dois modos de busca: **
 /check-principles             ← audita P1–P17
 ```
 
+Eval orientada a dados: `/craft-dataset <tipo> <nome>` (cria dataset com ground-truth) e `/tune-suite <nome>` (calibra os limiares do gate a partir de resultados reais).
+
 Skills são `.md` em `skills/commands/` — copie/symlinke para `~/.claude/commands/`. Catálogo em [skills/INDEX.md](./skills/INDEX.md).
 
 ---
@@ -143,6 +151,19 @@ Detalhes em [PATTERNS.md](./PATTERNS.md).
 
 ---
 
+## Harness — 4 modos de avaliação
+
+| Modo | O quê | Comando |
+|---|---|---|
+| **Contrato** + juiz LLM | qualidade subjetiva por capability | `npm run eval` |
+| **Dataset** + scorer | acerto objetivo vs ground-truth | `npm run eval:datasets` |
+| **Suite** (gate) | barra regressão (exit != 0) | `npm run eval:suite` |
+| **Benchmark** | compara arquiteturas (tokens/tempo) | `npm run benchmark` |
+
+Regra: contrato/dataset **medem** · suite **decide** · benchmark **compara**. Detalhes em [docs/learning.md](./docs/learning.md) §3.
+
+---
+
 ## Status
 
-Os 6 pacotes passam `turbo typecheck`. A execução em runtime (contra Postgres + OpenRouter reais) depende de Docker + `OPENROUTER_API_KEY` configurados — use os scripts de `npm run smoke` / `eval` / `eval:datasets` para validar.
+Os 6 pacotes passam `turbo typecheck`. A execução em runtime (contra Postgres + OpenRouter reais) depende de Docker + `OPENROUTER_API_KEY` configurados — use `npm run smoke` / `eval` / `eval:datasets` / `eval:suite` / `benchmark` para validar.
