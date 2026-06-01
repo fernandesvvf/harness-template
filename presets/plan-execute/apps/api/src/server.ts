@@ -1,5 +1,6 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
+import { startTrace, flushTraces } from '@harness/harness'
 import { config } from './config.js'
 import { logger } from './utils/logger.js'
 import { buildAgent } from './agent/factory.js'
@@ -15,11 +16,16 @@ app.post<{ Body: { question: string; scopeId?: string } }>('/chat', async (req, 
   const question = req.body?.question
   if (!question) return reply.code(400).send({ error: 'question é obrigatório' })
 
-  const result = await agent.invoke({
-    question,
-    scopeId: req.body?.scopeId ?? 'global',
-    runId: `run-${Date.now()}`,
-  })
+  const scopeId = req.body?.scopeId ?? 'global'
+  // Observabilidade: traça toda run de produção no Langfuse (no-op se sem chaves).
+  const trace = startTrace('plan-execute-agent', ['plan-execute', 'prod', scopeId])
+
+  const result = await agent.invoke(
+    { question, scopeId, runId: `run-${Date.now()}` },
+    { callbacks: trace.callbacks as never },
+  )
+
+  await flushTraces()
   return { answer: result.finalAnswer ?? '', blocked: result.isBlocked ?? false }
 })
 

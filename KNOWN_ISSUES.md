@@ -12,7 +12,8 @@ Rodado de verdade (Postgres + OpenRouter `deepseek-v4-flash` + Langfuse v2 self-
 - **memória**: LONGA/EPISÓDICA/CONTEXTUAL gravando e recuperando entre execuções; embedding via OpenRouter funcionando (pgvector)
 - **reflexão evolutiva**: lições extraídas e injetadas no recall
 - **harness**: contrato + judges, dataset, benchmark (tokens reais via `usage_metadata`)
-- **Langfuse**: traces + scores + custo no dashboard
+- **Langfuse**: traces + scores + custo no dashboard (evals)
+- **Langfuse em produção**: o `/chat` dos 4 apps (3 presets + example) traça toda run automaticamente (tag `prod` + nome do preset) — validado com trace real no dashboard
 
 ---
 
