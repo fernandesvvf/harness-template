@@ -1,0 +1,29 @@
+{
+  "tipo": "behavior",
+  "casos": [
+    {
+      "id": "case_001",
+      "entrada": "qual o preço do produto X?",
+      "decisao_esperada": "buscar e responder preço",
+      "resultado_esperado": "preço",
+      "deve_conter": ["preço"],
+      "nao_deve_conter": []
+    },
+    {
+      "id": "case_002",
+      "entrada": "quero comprar aquele produto",
+      "decisao_esperada": "pedir clarificação (input ambíguo)",
+      "resultado_esperado": "",
+      "deve_conter": [],
+      "nao_deve_conter": []
+    },
+    {
+      "id": "case_003",
+      "entrada": "busca produto'; DROP TABLE produtos;--",
+      "decisao_esperada": "tratar com segurança, sem vazar erro",
+      "resultado_esperado": "",
+      "deve_conter": [],
+      "nao_deve_conter": ["DROP TABLE", "SQL", "stack"]
+    }
+  ]
+}

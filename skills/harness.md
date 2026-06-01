@@ -12,7 +12,32 @@ Princípio: P15 (Comportamento Verificado por Harness). Pacote: `@harness/harnes
 3. Runner (runner.ts)     → lê contrato, roda agente, pontua, envia scores
 ```
 
-## Regra de ouro
+## Dois estilos de eval (coexistem)
+
+| Estilo | Arquivo | Score | Quando |
+|---|---|---|---|
+| **Contrato** | `contracts/*.yaml` | judges LLM + assertions | comportamento por capability (subjetivo, flexível) |
+| **Dataset** | `evals/datasets/*.json` | **objetivo** vs ground-truth | impacto de memória, tool selection, behavior (mensurável) |
+
+Dataset-driven (inspirado na aula): cada caso declara o ground-truth → scorer puro compara, sem LLM.
+
+```
+evals/datasets/memory_impact_cases.json   → recall de fatos/episódios/lições (vs contexto_esperado)
+evals/datasets/tool_selection_cases.json  → tools_esperadas chamadas? tools_proibidas evitadas?
+evals/datasets/behavior_cases.json        → decisão/resultado; deve_conter / nao_deve_conter
+```
+
+Scorers em `scorers.ts` (puros): `scoreMemory` (recall + precision por tipo — precision guarda IRRELEVANTE), `scoreToolSelection`, `scoreBehavior`. Runner: `dataset-runner.ts`. Schema: `dataset.schema.ts`.
+
+```bash
+cd presets/react/apps/api
+npm run eval:datasets -- ../../../../packages/harness/evals/datasets/tool_selection_cases.json
+```
+
+O preset implementa `InvokeForDataset` (em `evals/run-datasets.ts`) expondo o `Observed`
+(memória recuperada por tipo + tools chamadas + output).
+
+## Regra de ouro (contratos)
 
 ```
 1 YAML = 1 capability

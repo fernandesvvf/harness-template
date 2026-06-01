@@ -1,0 +1,27 @@
+{
+  "tipo": "memory_impact",
+  "casos": [
+    {
+      "id": "case_001",
+      "entrada": "o produto X ainda está no preço de sempre?",
+      "contexto_esperado": {
+        "fatos_relevantes": ["produto X"],
+        "episodios_relevantes": ["produto X"],
+        "licoes_relevantes": []
+      },
+      "decisao_esperada": "usar memória do produto X antes de buscar",
+      "resultado_esperado": "preço"
+    },
+    {
+      "id": "case_002",
+      "entrada": "qual a capital da França?",
+      "contexto_esperado": {
+        "fatos_relevantes": [],
+        "episodios_relevantes": [],
+        "licoes_relevantes": []
+      },
+      "decisao_esperada": "não recuperar memória irrelevante",
+      "resultado_esperado": ""
+    }
+  ]
+}

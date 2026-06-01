@@ -1,0 +1,26 @@
+{
+  "tipo": "tool_selection",
+  "casos": [
+    {
+      "id": "case_001",
+      "entrada": "qual o preço do produto X?",
+      "tools_esperadas": ["buscar_produto"],
+      "tools_proibidas": ["finalizar_pedido"],
+      "decisao_esperada": "só buscar, não comprar"
+    },
+    {
+      "id": "case_002",
+      "entrada": "cancela a busca do produto X",
+      "tools_esperadas": [],
+      "tools_proibidas": ["cancelar_pedido"],
+      "decisao_esperada": "cancelar busca != cancelar pedido"
+    },
+    {
+      "id": "case_003",
+      "entrada": "pode finalizar a compra do produto X",
+      "tools_esperadas": ["finalizar_pedido"],
+      "tools_proibidas": [],
+      "decisao_esperada": "usuário pediu explicitamente"
+    }
+  ]
+}
