@@ -1,0 +1,42 @@
+# Contrato de eval de MEMÓRIA (cenários BOA / IRRELEVANTE da aula).
+# Requer um preset com memória ligada (ex: react) e EVAL_SCOPE_ID estável.
+# Os cases rodam em sequência no mesmo scope: o 1º popula, os seguintes recuperam.
+#
+# Mede via judges memory_relevance (BOA) e memory_concision (IRRELEVANTE)
+# sobre o memoryContext, que o evals/run.ts coloca no início do reasoningText.
+name: "memoria"
+description: "memória recuperada deve ajudar (BOA) sem poluir o contexto (IRRELEVANTE)"
+runs: 1
+
+cases:
+  # 1) Estabelece contexto — primeira execução popula LONGA/EPISÓDICA/CONTEXTUAL.
+  - id: "estabelece_contexto"
+    variation: happy_path
+    input: "qual o preço do produto X?"
+    assertions:
+      tool_calls:
+        - tool: "buscar_produto"
+          required: true
+      output:
+        contains: ["X"]
+
+  # 2) BOA — a 2ª execução deve recuperar memória relevante da 1ª.
+  - id: "memoria_ajuda"
+    variation: happy_path
+    input: "e o produto X ainda está disponível?"
+    assertions:
+      reasoning:
+        judge: "memory_relevance" # memoryContext deve trazer algo útil sobre o produto X
+        min_score: 0.6
+      output:
+        judge: "answer_completeness"
+        min_score: 0.7
+
+  # 3) IRRELEVANTE — pergunta nova e distante não deve poluir com fragmentos inúteis.
+  - id: "nao_polui"
+    variation: edge_case
+    input: "qual a capital da França?"
+    assertions:
+      reasoning:
+        judge: "memory_concision" # memória recuperada deve ser enxuta / vazia aqui
+        min_score: 0.6

@@ -11,10 +11,14 @@ import { buildAgent } from '../src/agent/factory.js'
 
 const agent = buildAgent()
 
+// scopeId fixo do eval: cases do mesmo contrato compartilham memória (case anterior
+// popula, case seguinte recupera). Permite medir BOA/IRRELEVANTE.
+const evalScope = process.env.EVAL_SCOPE_ID ?? 'eval'
+
 // Normaliza uma execução do grafo ReAct no RunResult que o evaluate espera.
 const invokeAgent: InvokeAgent = async (input, callbacks) => {
   const result = await agent.invoke(
-    { question: input, messages: [new HumanMessage(input)] },
+    { question: input, scopeId: evalScope, runId: `eval-${Date.now()}`, messages: [new HumanMessage(input)] },
     { callbacks: callbacks as never },
   )
 
@@ -27,11 +31,13 @@ const invokeAgent: InvokeAgent = async (input, callbacks) => {
       (m.tool_calls ?? []).map((tc) => ({ name: tc.name, params: tc.args as Record<string, unknown> })),
     )
 
-  // reasoning: texto das AIMessages + observações das ToolMessages
-  const reasoningText = messages
+  // reasoning: memória recuperada (p/ judges memory_*) + AIMessages + observações
+  const turns = messages
     .filter((m: BaseMessage) => m instanceof AIMessage || m instanceof ToolMessage)
     .map((m: BaseMessage) => (typeof m.content === 'string' ? m.content : JSON.stringify(m.content)))
     .join('\n')
+  const memoryContext = result.memoryContext ?? '(memória vazia)'
+  const reasoningText = `Memória recuperada:\n${memoryContext}\n\nExecução:\n${turns}`
 
   const run: RunResult = {
     toolCalls,

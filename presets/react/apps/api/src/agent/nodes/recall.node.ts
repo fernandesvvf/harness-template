@@ -38,6 +38,14 @@ export function makeRecallNode(
       } catch (err) {
         logger.warn({ err }, 'recall: EPISÓDICA falhou — seguindo sem')
       }
+
+      // REFLEXÃO EVOLUTIVA — lições aprendidas com erros passados (aplica antes de agir)
+      try {
+        const lessons = await episodic.getLessonsForPrompt(scopeId)
+        if (lessons) parts.push(`Lições aprendidas (evite repetir erros):\n${lessons}`)
+      } catch (err) {
+        logger.warn({ err }, 'recall: lições falharam — seguindo sem')
+      }
     }
 
     // CONTEXTUAL — fragmentos por similaridade ("google interno", sob demanda)

@@ -75,7 +75,7 @@ export function buildAgentGraph(deps: AgentDeps) {
     .addNode('recall', makeRecallNode(longTerm, episodic, contextual))
     .addNode('agent', makeAgentNode(agentLlm, agentTools))
     .addNode('tools', toolNode)
-    .addNode('persist', makePersistNode({ memoryLlm, longTerm, episodic, contextual }))
+    .addNode('persist', makePersistNode({ memoryLlm, longTerm, episodic, contextual, maxSteps: config.agent.reactMaxSteps }))
     .addEdge(START, 'guardrails')
     .addConditionalEdges('guardrails', (s: AgentState) => routeAfterGuardrails(s), {
       agent: 'recall', // passa pelo recall antes de raciocinar

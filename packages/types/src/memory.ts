@@ -23,10 +23,17 @@ export interface LongTermFact {
   updatedAt: string
 }
 
-/** Resumo de uma execução passada (EPISÓDICA — "diário", ttl configurável). */
+/**
+ * Entrada da EPISÓDICA — "diário", ttl configurável.
+ * kind 'summary' = resumo de execução; 'lesson' = lição (reflexão evolutiva).
+ * Lição só é gravada quando o resultado foi inesperado, e deve ser generalizável.
+ */
+export type EpisodicKind = 'summary' | 'lesson'
+
 export interface EpisodicSummary {
   scopeId: ScopeId
   runId: string
+  kind: EpisodicKind
   summary: string
   createdAt: string
   /** quando expira; null = sem expiração */

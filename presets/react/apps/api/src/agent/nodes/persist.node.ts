@@ -13,12 +13,15 @@ import type { AgentState } from '../graph.js'
 import { logger } from '../../utils/logger.js'
 import { FactsSchema, getExtractFactsSystemPrompt, getExtractFactsUserPrompt } from '../../prompts/v1/extract-facts.prompt.js'
 import { SummarySchema, getSummarizeRunSystemPrompt, getSummarizeRunUserPrompt } from '../../prompts/v1/summarize-run.prompt.js'
+import { LessonSchema, getExtractLessonSystemPrompt, getExtractLessonUserPrompt } from '../../prompts/v1/extract-lesson.prompt.js'
 
 interface PersistDeps {
   memoryLlm: OpenRouterService | null
   longTerm: LongTermMemoryService | null
   episodic: EpisodicMemoryService | null
   contextual: ContextualMemoryService | null
+  /** teto de steps do ReAct — usado pra detectar "resultado inesperado". */
+  maxSteps: number
 }
 
 function buildTranscript(messages: BaseMessage[], question: string, answer: string): string {
@@ -29,15 +32,34 @@ function buildTranscript(messages: BaseMessage[], question: string, answer: stri
   return `Pergunta: ${question}\n${turns}\nResposta final: ${answer}`
 }
 
+/**
+ * Detecta "resultado inesperado" por sinais do próprio run (sem LLM extra).
+ * Reflexão evolutiva só extrai lição quando há surpresa (regra da aula).
+ * Retorna o sinal (string) ou null se a execução foi normal.
+ */
+function detectSurprise(messages: BaseMessage[], stepCount: number, maxSteps: number): string | null {
+  // sinal 1: alguma tool retornou erro
+  const toolError = messages.some(
+    (m) => m instanceof ToolMessage && typeof m.content === 'string' && /erro|error|falha|not found|não encontrad/i.test(m.content),
+  )
+  if (toolError) return 'tool retornou erro'
+
+  // sinal 2: loop atingiu o teto de passos (não convergiu)
+  if (stepCount >= maxSteps) return 'atingiu o teto de passos sem convergir'
+
+  return null
+}
+
 export function makePersistNode(deps: PersistDeps) {
-  const { memoryLlm, longTerm, episodic, contextual } = deps
+  const { memoryLlm, longTerm, episodic, contextual, maxSteps } = deps
 
   return async function persistNode(state: AgentState): Promise<Partial<AgentState>> {
     const scopeId = state.scopeId ?? 'global'
     const runId = state.runId ?? `run-${Date.now()}`
     const question = state.question ?? ''
     const answer = state.finalAnswer ?? ''
-    const transcript = buildTranscript((state.messages ?? []) as BaseMessage[], question, answer)
+    const msgs = (state.messages ?? []) as BaseMessage[]
+    const transcript = buildTranscript(msgs, question, answer)
 
     // LONGA — extrai fatos duráveis (precisa de LLM)
     if (longTerm && memoryLlm) {
@@ -64,9 +86,31 @@ export function makePersistNode(deps: PersistDeps) {
           getSummarizeRunUserPrompt(transcript),
           SummarySchema,
         )
-        if (res.success) await episodic.store(scopeId, runId, res.data.summary)
+        if (res.success) await episodic.store(scopeId, runId, res.data.summary, 'summary')
       } catch (err) {
         logger.warn({ err }, 'persist: EPISÓDICA falhou')
+      }
+    }
+
+    // REFLEXÃO EVOLUTIVA (nível 1) — lição SÓ quando o resultado foi inesperado.
+    // Sinal vem do próprio run (erro de tool / teto de passos), sem LLM extra.
+    // A lição é generalizável (regra da aula) e guardada como kind='lesson'.
+    if (episodic && memoryLlm) {
+      const surprise = detectSurprise(msgs, state.stepCount ?? 0, maxSteps)
+      if (surprise) {
+        try {
+          const res = await memoryLlm.generateStructured(
+            getExtractLessonSystemPrompt(),
+            getExtractLessonUserPrompt(transcript, surprise),
+            LessonSchema,
+          )
+          if (res.success && res.data.lesson) {
+            await episodic.store(scopeId, runId, res.data.lesson, 'lesson')
+            logger.info({ surprise, lesson: res.data.lesson }, 'persist: lição aprendida')
+          }
+        } catch (err) {
+          logger.warn({ err }, 'persist: extração de lição falhou')
+        }
       }
     }
 

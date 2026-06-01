@@ -17,6 +17,26 @@ Princípio: P16 (Governança de Memória). Pacote: `@harness/memory`. Contrato: 
 
 Bloco ```yaml``` declara a política de cada tipo. Validado por `memory.schema.ts` — política inválida falha antes de rodar. Ver `memory.md` na raiz.
 
+## Dois modos de buscar
+
+- **Filtro** (exato, `WHERE scope_id`): LONGA, EPISÓDICA — quando você sabe a chave.
+- **Significado** (embedding, `<=>`): CONTEXTUAL — quando tem uma pergunta e quer o parecido.
+
+## Reflexão evolutiva (aprender com os próprios erros)
+
+Dois níveis no preset react:
+
+| Nível | Quando | O quê | Onde |
+|---|---|---|---|
+| **N1 — lição** | ao fim de cada run, SÓ se inesperado (erro de tool / teto de passos) | LLM extrai 1 lição **generalizável** (não específica ao input) → EPISÓDICA `kind=lesson` | `persist.node` |
+| **N2 — padrão** | manual, a cada ~N execuções | LLM detecta padrões **recorrentes** nas lições → promove a fato durável (LONGA) | `scripts/consolidate-lessons.ts` |
+
+Regras (da aula): lição só quando há surpresa; deve ser generalizável; padrões emergem do agregado (~10 runs). No recall, as lições vivas são injetadas no prompt ("evite repetir erros").
+
+```bash
+npm run consolidate-lessons -- <scopeId>   # nível 2
+```
+
 ## Os 3 cenários (por que medir)
 
 | Cenário | Causa | Política que mitiga |
@@ -61,3 +81,16 @@ const ctx = new ContextualMemoryService(embed, {
 - [ ] Service instanciado só no `factory.ts`
 - [ ] Política lida do contrato, não hardcoded
 - [ ] Contrato de eval prova ganho (BOA) e ausência de IRRELEVANTE/PERIGOSA
+
+## Avaliar memória (harness)
+
+Judges em `judges.ts`: `memory_relevance` (BOA), `memory_concision` (IRRELEVANTE).
+Contrato: `packages/harness/src/contracts/memoria.yaml` — cases em sequência no mesmo
+`EVAL_SCOPE_ID` (1º popula, seguintes recuperam). `evals/run.ts` põe o `memoryContext`
+no início do `reasoningText`; os judges avaliam via canal `reasoning`.
+
+```bash
+docker-compose up -d postgres
+cd presets/react/apps/api
+npm run eval -- ../../../../packages/harness/src/contracts/memoria.yaml
+```

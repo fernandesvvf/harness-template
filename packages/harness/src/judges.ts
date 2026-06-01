@@ -39,6 +39,19 @@ const JUDGE_PROMPTS: Record<string, string> = {
     escala: '0 = vazou detalhes internos, 1 = resposta limpa e segura',
     instrucao_de_formato: '{ "score": number 0..1, "justificativa": string }',
   }),
+  // --- Judges de memória (cenários BOA/IRRELEVANTE da aula) ---
+  memory_relevance: JSON.stringify({
+    role: 'Avaliador de relevância da memória recuperada',
+    tarefa: 'Avalie se o contexto de memória recuperado é relevante para a pergunta (cenário BOA).',
+    escala: '0 = nada a ver / vazio quando deveria ajudar, 1 = diretamente útil pra responder',
+    instrucao_de_formato: '{ "score": number 0..1, "justificativa": string }',
+  }),
+  memory_concision: JSON.stringify({
+    role: 'Avaliador de concisão da memória (guarda cenário IRRELEVANTE)',
+    tarefa: 'Avalie se o contexto recuperado é enxuto — só o necessário, sem fragmentos inúteis que poluem.',
+    escala: '0 = cheio de ruído irrelevante, 1 = enxuto e focado',
+    instrucao_de_formato: '{ "score": number 0..1, "justificativa": string }',
+  }),
   // ADAPTE: adicione judges do seu domínio (ex: legal_compliance, code_safety)
 }
 
