@@ -71,8 +71,7 @@ export async function runBenchmark(
     const tempoMs = Date.now() - t0
     const cob = cobertura(esperadas, obs.toolsChamadas)
     // Envia as métricas como scores do trace (aparecem no Langfuse junto do run).
-    const traceId = (trace.handler as { getTraceId?: () => string } | null)?.getTraceId?.()
-    await pushScores(traceId, [
+    await pushScores(trace, [
       { name: 'tokens', value: tokens.total },
       { name: 'tempo_ms', value: tempoMs },
       { name: 'concluido', value: Number(concluido) },

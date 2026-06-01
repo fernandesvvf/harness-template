@@ -55,10 +55,10 @@ async function runCase(
 
   for (let i = 0; i < contract.runs; i++) {
     const trace = startTrace(contract.name, [contract.name, c.id, c.variation ?? 'unspecified'])
-    const { run, traceId } = await invokeAgent(c.input, trace.callbacks)
-    lastTraceId = traceId
+    const { run } = await invokeAgent(c.input, trace.callbacks)
+    lastTraceId = (trace.handler as { getTraceId?: () => string } | null)?.getTraceId?.()
     const scores = await evaluate(c.assertions, run, runJudge)
-    await pushScores(traceId, scores)
+    await pushScores(trace, scores)
     perRun.push(scores)
   }
 

@@ -25,27 +25,25 @@ services:
       timeout: 5s
       retries: 10
 
-  # ---------- Observabilidade (Langfuse self-host) ----------
+  # ---------- Observabilidade (Langfuse v2 self-host — web + 1 postgres) ----------
+  # v2 escolhido por simplicidade (v3 exige clickhouse+redis+minio). API de ingest
+  # idêntica pro nosso tracing. Pra produção em escala, migre pro v3.
   langfuse:
-    image: langfuse/langfuse:3
+    image: langfuse/langfuse:2
     container_name: harness-langfuse
     restart: unless-stopped
     depends_on:
       langfuse-db:
         condition: service_healthy
-      langfuse-clickhouse:
-        condition: service_started
     ports:
       - "3030:3000"
     environment:
       DATABASE_URL: postgresql://langfuse:langfuse@langfuse-db:5432/langfuse
-      CLICKHOUSE_URL: http://langfuse-clickhouse:8123
-      CLICKHOUSE_USER: default
-      CLICKHOUSE_PASSWORD: ""
       NEXTAUTH_URL: http://localhost:3030
       NEXTAUTH_SECRET: dev-secret-change-me
       SALT: dev-salt-change-me
-      ENCRYPTION_KEY: 0000000000000000000000000000000000000000000000000000000000000000
+      TELEMETRY_ENABLED: "false"
+      LANGFUSE_DEFAULT_PROJECT_ROLE: ADMIN
 
   langfuse-db:
     image: postgres:16
@@ -63,18 +61,6 @@ services:
       timeout: 5s
       retries: 10
 
-  langfuse-clickhouse:
-    image: clickhouse/clickhouse-server:24
-    container_name: harness-clickhouse
-    restart: unless-stopped
-    volumes:
-      - harness_clickhouse:/var/lib/clickhouse
-    ulimits:
-      nofile:
-        soft: 262144
-        hard: 262144
-
 volumes:
   harness_pg:
   harness_langfuse_pg:
-  harness_clickhouse:

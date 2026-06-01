@@ -25,9 +25,9 @@ export async function runDataset(path: string, invoke: InvokeForDataset): Promis
   // Roda 1 caso: invoca o agente e aplica o scorer já escolhido pelo tipo.
   async function runOne(id: string, entrada: string, score: (obs: Observed) => Score[]): Promise<void> {
     const trace = startTrace(ds.tipo, [ds.tipo, id])
-    const { obs, traceId } = await invoke(entrada, trace.callbacks)
+    const { obs } = await invoke(entrada, trace.callbacks)
     const scores = score(obs)
-    await pushScores(traceId, scores)
+    await pushScores(trace, scores)
     console.log(`[${ds.tipo}/${id}] ${scores.map((s) => `${s.name}=${s.value.toFixed(2)}`).join(' ')}`)
     results.push({ caseId: id, scores })
   }
