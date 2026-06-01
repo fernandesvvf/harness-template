@@ -76,6 +76,7 @@ Roda: `npm run eval` (turbo) ou `tsx packages/harness/src/runner.ts <contrato>`.
 |---|---|
 | `/scaffold-architecture <react\|plan\|reflection>` | Scaffolda um preset novo a partir do template da arquitetura |
 | `/craft-spec <capability>` | Spec (O QUÊ) antes de construir — fonte do contrato de eval |
+| `/craft-tasks <capability>` | Lê o spec e deriva as craft-skills a rodar (TodoWrite) |
 | `/craft-contract <capability>` | Cria um contrato YAML com as 5 variações obrigatórias (deriva do spec) |
 | `/craft-memory <curta\|longa\|episodica\|contextual>` | Adiciona um tipo de memória + entrada no `memory.md` |
 | `/craft-prompt` `/craft-llm-node` `/craft-io-node` | Craft de nós (herdados do template antigo) |

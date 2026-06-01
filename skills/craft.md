@@ -5,14 +5,19 @@ Cada skill garante que o código gerado segue os princípios do PATTERNS.md.
 
 **Ordem recomendada ao adicionar uma capability (spec-driven):**
 ```
-/craft-spec  ← O QUÊ (define comportamento + as 5 variações de eval)
+/craft-spec   ← O QUÊ (define comportamento + as 5 variações de eval)
+   ↓
+/craft-tasks  ← lê o spec e deriva quais craft-skills rodar (TodoWrite)
    ↓
 /craft-prompt → /craft-llm-node (ou /craft-io-node) → /craft-edge-conditions → /craft-graph-state → /craft-factory
    ↓
-/craft-contract  ← COMO VERIFICAR (deriva do spec)
-   ↓
 /craft-memory <tipo>  ← se a capability precisar de memória persistida
+   ↓
+/craft-contract  ← COMO VERIFICAR (deriva do spec)
 ```
+
+`/craft-tasks` é opcional pra capabilities simples (o pipeline acima já é o plano);
+vale pra capabilities compostas (vários nós/tools/memória), onde deriva o subconjunto certo.
 
 O spec ancora a intenção; o contrato verifica; os craft-nodes implementam. Sem o spec, o código fica sem alvo e o eval sai solto. Ver `spec.template.md` e `skills/commands/craft-spec.md`.
 

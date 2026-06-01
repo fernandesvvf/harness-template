@@ -1,73 +1,60 @@
 # Starter Skills
 
-Skills que criam projetos do zero a partir do Orion como referência canônica.
+Skills que iniciam um projeto a partir dos presets de arquitetura cognitiva deste template.
 
-**Templates disponíveis:**
+**Presets disponíveis:**
 
-| Template | Quando usar |
+| Preset | Quando usar |
 |---|---|
-| `template/` | Qualquer agente simples — fluxo mínimo |
-| `template-chat-dual-memory/` | Agente conversacional com memória de preferências entre sessões |
-| `template-rag-naive/` | Aprender RAG ou protótipos rápidos sem infra externa |
-| `template-rag-vector/` | RAG em produção com vector DB (Pinecone, Qdrant, pgvector) |
-| `template-rag-neo4j/` | Perguntas analíticas sobre grafo Neo4j |
-| `template-agentic-rag/` | Perguntas imprevisíveis que exigem múltiplas fontes e raciocínio dinâmico |
+| `presets/react/` | caminho aberto, ramificações, debugging — resultado de um passo muda o próximo |
+| `presets/plan-execute/` | fluxo previsível, steps independentes, barato (2 LLM calls) |
+| `presets/reflection/` | qualidade crítica (código, jurídico, diagnóstico) — critic loop |
 
-A skill escolhe o template correto baseada nas respostas do discovery.
+Cada preset tem `TEMPLATE.md` próprio (placeholders, o que adaptar, checklist) e `memory.md` (política dos 4 tipos).
 
 ---
 
-## `/build-agent`
+## `/scaffold-architecture <react|plan|reflection>`
 
-**Quando usar:** Ponto de entrada padrão — sempre ao iniciar qualquer projeto novo.
+**Quando usar:** ponto de entrada para iniciar um projeto novo a partir de um preset.
 
-Conduz uma sessão de discovery (perguntas sobre domínio, dados, segurança, complexidade),
-propõe arquitetura combinando os padrões necessários, aguarda aprovação e scaffolda o projeto.
+Conduz discovery curto (domínio, tools, memória), escolhe/confirma a arquitetura pela natureza do problema (P14), copia o preset e substitui placeholders.
 
 **Processo:**
-1. Discovery: domínio, usuários, dados, necessidade de guardrails, tipo de persistência
-2. Proposta de arquitetura com justificativa (baseada nos padrões do Orion)
-3. Aguarda confirmação antes de criar qualquer arquivo
-4. Scaffolda projeto seguindo a estrutura canônica do Orion
-5. Entrega checklist de próximos passos
+1. Escolher arquitetura pela natureza do problema (tabela acima + `skills/architectures.md`).
+2. Copiar `presets/<arch>/` pro destino.
+3. Substituir slug/nome (package.json, config `X_TITLE`, .env.example).
+4. Adaptar tools/steps, prompts, guardrails ao domínio.
+5. Ajustar tetos de loop e modelos em `config.ts`.
+6. Copiar `memory.md`; deixar só CURTA enabled por padrão.
+7. `npm install` na raiz; `npx tsc --noEmit` no preset.
+
+Detalhes e padrão obrigatório: `skills/architectures.md`.
 
 ---
 
-## `/new-langgraph-agent`
+## Fluxo após o scaffold
 
-**Quando usar:** Quando já sabe que quer um agente LangGraph + OpenRouter, sem necessidade de discovery.
-
-Scaffolda diretamente a estrutura do Orion adaptada ao domínio informado.
-
-**O que gera:**
 ```
-src/
-├── config.ts                    # Versões e env vars canônicas
-├── agent/
-│   ├── factory.ts               # Único ponto de instanciação
-│   ├── graph.ts                 # Estado Zod + edges (API 1.1.x)
-│   └── nodes/
-│       ├── <dominio>.node.ts    # Nó principal adaptado
-│       └── edge-conditions.ts
-├── services/
-│   └── openrouter.service.ts    # Cliente LLM com fallback
-└── prompts/
-    └── v1/
-        └── <dominio>.prompt.ts  # Schema + prompts versionados
+/scaffold-architecture        ← cria o preset
+   ↓
+/craft-spec <capability>      ← define O QUÊ (+ 5 variações de eval)
+   ↓
+/craft-tasks <capability>     ← deriva as craft-skills a rodar (TodoWrite)
+   ↓
+/craft-prompt → /craft-*-node → /craft-edge-conditions → /craft-graph-state → /craft-factory
+   ↓
+/craft-memory <tipo>          ← se a capability usar memória persistida
+   ↓
+/craft-contract <capability>  ← deriva o eval do spec
+   ↓
+/check-principles
 ```
 
-**package.json gerado com versões canônicas:**
-```json
-{
-  "@langchain/core": "^1.1.22",
-  "@langchain/langgraph": "1.1.3",
-  "@langchain/openai": "^1.2.9",
-  "langchain": "1.2.25",
-  "zod": "^3.24.1"
-}
-```
+## Convenções não-negociáveis
 
-**tsconfig.json gerado com configuração obrigatória:**
-```json
-{ "compilerOptions": { "moduleResolution": "node", "exactOptionalPropertyTypes": false } }
-```
+- `import { z } from 'zod/v3'` — nunca `from 'zod'`
+- `new StateGraph({ state: schema })` — nunca `Annotation.Root`, nunca `{ stateSchema }`
+- Versões: `@langchain/langgraph 1.1.3` + `langchain 1.2.25`
+- `tsconfig`: `moduleResolution: "bundler"` (necessário p/ subpaths `/prebuilt`, `/zod`)
+- Um `OpenRouterService` por nó LLM; `new XService()` só no `factory.ts`
