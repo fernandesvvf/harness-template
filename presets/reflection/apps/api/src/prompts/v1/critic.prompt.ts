@@ -13,7 +13,7 @@ export const CriticSchema = z.object({
 export type CriticOutput = z.infer<typeof CriticSchema>
 
 const JSON_FORMAT_INSTRUCTION =
-  'Responda APENAS com um objeto JSON válido, sem markdown, sem blocos de código. Apenas o JSON puro.'
+  'Responda APENAS com um objeto JSON válido no formato {"approved": boolean, "feedback": "..."}. Use exatamente as chaves "approved" e "feedback" (em inglês). Sem markdown, sem blocos de código.'
 
 // ADAPTE: critérios ao domínio. Critic fraco não melhora nada — seja específico.
 export function getCriticSystemPrompt(): string {

@@ -8,7 +8,7 @@ export const SynthesisSchema = z.object({ answer: z.string().min(1) })
 export type Synthesis = z.infer<typeof SynthesisSchema>
 
 const JSON_FORMAT_INSTRUCTION =
-  'Responda APENAS com um objeto JSON válido, sem markdown, sem blocos de código. Apenas o JSON puro.'
+  'Responda APENAS com um objeto JSON válido no formato {"answer": "..."}. Use exatamente a chave "answer" (em inglês), com o texto da resposta em português. Sem markdown, sem blocos de código.'
 
 export function getSynthesizerSystemPrompt(): string {
   return JSON.stringify({

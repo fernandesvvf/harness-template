@@ -2,6 +2,7 @@
   "name": "harness-template",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "workspaces": [
     "presets/*/apps/*",
     "packages/*"

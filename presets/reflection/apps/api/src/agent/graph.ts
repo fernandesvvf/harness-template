@@ -58,13 +58,12 @@ export function buildAgentGraph(deps: AgentDeps) {
   const { guardrailsLlm, generatorLlm, criticLlm, memoryLlm, longTerm, episodic, contextual } = deps
   const memoryEnabled = Boolean(longTerm || episodic || contextual)
 
-  return new StateGraph({ state: AgentStateAnnotation })
+  const builder = new StateGraph({ state: AgentStateAnnotation })
     .addNode('guardrails', makeGuardrailsNode(guardrailsLlm))
     .addNode('blocked', blockedNode)
     .addNode('recall', makeRecallNode(longTerm, episodic, contextual))
     .addNode('generator', makeGeneratorNode(generatorLlm))
     .addNode('critic', makeCriticNode(criticLlm))
-    .addNode('persist', makePersistNode({ memoryLlm, longTerm, episodic, contextual }))
     .addEdge(START, 'guardrails')
     .addConditionalEdges('guardrails', (s: AgentState) => routeAfterGuardrails(s), {
       generator: 'recall', // recupera contexto (+ lições passadas) antes de gerar
@@ -73,11 +72,22 @@ export function buildAgentGraph(deps: AgentDeps) {
     .addEdge('blocked', END)
     .addEdge('recall', 'generator')
     .addEdge('generator', 'critic')
-    // Loop: critic (= fase avaliar) aprova → persist; reprova → volta ao generator.
-    .addConditionalEdges('critic', (s: AgentState) => routeAfterCritic(s, config.agent.reflectionMaxIter), {
+
+  // Loop: critic (= fase avaliar) aprova → persist (se há memória) ; reprova → generator.
+  if (memoryEnabled) {
+    builder
+      .addNode('persist', makePersistNode({ memoryLlm, longTerm, episodic, contextual }))
+      .addConditionalEdges('critic', (s: AgentState) => routeAfterCritic(s, config.agent.reflectionMaxIter), {
+        generator: 'generator',
+        end: 'persist',
+      })
+      .addEdge('persist', END)
+  } else {
+    builder.addConditionalEdges('critic', (s: AgentState) => routeAfterCritic(s, config.agent.reflectionMaxIter), {
       generator: 'generator',
-      end: memoryEnabled ? 'persist' : END,
+      end: END,
     })
-    .addEdge('persist', END)
-    .compile()
+  }
+
+  return builder.compile()
 }

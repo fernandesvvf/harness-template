@@ -1,5 +1,6 @@
 // factory — único ponto de instanciação (P3 Factory + P2 DI).
 import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { loadMemoryContract, LongTermMemoryService, EpisodicMemoryService } from '@harness/memory'
 import { OpenRouterService } from '../services/openrouter.service.js'
 import { config } from '../config.js'
@@ -10,9 +11,11 @@ import { buildAgentGraph } from './graph.js'
 // MEMORY_DISABLED=1 desliga tudo (baseline do memory-impact eval).
 function buildMemory() {
   if (process.env.MEMORY_DISABLED === '1') return { longTerm: null, episodic: null }
+  const here = fileURLToPath(new URL('.', import.meta.url))
+  const memoryPath = resolve(here, '../../../../memory.md')
   let contract
   try {
-    contract = loadMemoryContract(resolve(process.cwd(), 'memory.md'))
+    contract = loadMemoryContract(memoryPath)
   } catch (err) {
     logger.warn({ err }, 'memory.md não carregado — memória persistida desabilitada')
     return { longTerm: null, episodic: null }

@@ -33,7 +33,7 @@ await ask('e o produto Y?')
 // Prova direta no banco que a escrita aconteceu.
 const pool = getPool()
 const facts = await pool.query('SELECT key, value FROM long_term_facts WHERE scope_id = $1', [scopeId])
-const eps = await pool.query('SELECT summary FROM episodic_summaries WHERE scope_id = $1', [scopeId])
+const eps = await pool.query('SELECT summary, kind FROM episodic_entries WHERE scope_id = $1', [scopeId])
 const frags = await pool.query('SELECT content FROM contextual_fragments WHERE scope_id = $1', [scopeId])
 
 console.log('\n=== ESTADO DO BANCO (scopeId) ===')

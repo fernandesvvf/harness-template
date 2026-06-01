@@ -59,7 +59,7 @@ export function buildAgentGraph(deps: AgentDeps) {
   const { guardrailsLlm, plannerLlm, synthesizerLlm, memoryLlm, longTerm, episodic } = deps
   const memoryEnabled = Boolean(longTerm || episodic)
 
-  return new StateGraph({ state: AgentStateAnnotation })
+  const builder = new StateGraph({ state: AgentStateAnnotation })
     .addNode('guardrails', makeGuardrailsNode(guardrailsLlm))
     .addNode('blocked', blockedNode)
     .addNode('recall', makeRecallNode(longTerm, episodic))
@@ -67,7 +67,6 @@ export function buildAgentGraph(deps: AgentDeps) {
     .addNode('executor', makeExecutorNode())
     .addNode('synthesizer', makeSynthesizerNode(synthesizerLlm))
     .addNode('evaluate', makeEvaluateNode(memoryLlm))
-    .addNode('persist', makePersistNode({ memoryLlm, longTerm, episodic }))
     .addEdge(START, 'guardrails')
     .addConditionalEdges('guardrails', (s: AgentState) => routeAfterGuardrails(s), {
       planner: 'recall', // recupera contexto antes de planejar
@@ -81,9 +80,17 @@ export function buildAgentGraph(deps: AgentDeps) {
       executor: 'executor',
       synthesizer: 'synthesizer',
     })
-    // ...sintetizar → avaliar → persistir.
     .addEdge('synthesizer', 'evaluate')
-    .addEdge('evaluate', memoryEnabled ? 'persist' : END)
-    .addEdge('persist', END)
-    .compile()
+
+  // ...avaliar → persistir (persist só se há memória ligada; senão órfão).
+  if (memoryEnabled) {
+    builder
+      .addNode('persist', makePersistNode({ memoryLlm, longTerm, episodic }))
+      .addEdge('evaluate', 'persist')
+      .addEdge('persist', END)
+  } else {
+    builder.addEdge('evaluate', END)
+  }
+
+  return builder.compile()
 }

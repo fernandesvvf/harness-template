@@ -8,7 +8,7 @@ export const GeneratorSchema = z.object({ answer: z.string().min(1) })
 export type GeneratorOutput = z.infer<typeof GeneratorSchema>
 
 const JSON_FORMAT_INSTRUCTION =
-  'Responda APENAS com um objeto JSON válido, sem markdown, sem blocos de código. Apenas o JSON puro.'
+  'Responda APENAS com um objeto JSON válido no formato {"answer": "..."}. Use exatamente a chave "answer" (em inglês), com o texto da resposta em português. Sem markdown, sem blocos de código.'
 
 // ADAPTE: papel e regras ao seu domínio (código, jurídico, diagnóstico...).
 export function getGeneratorSystemPrompt(): string {
