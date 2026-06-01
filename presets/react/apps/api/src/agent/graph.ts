@@ -15,6 +15,7 @@ import { makeGuardrailsNode } from './nodes/guardrails.node.js'
 import { blockedNode } from './nodes/blocked.node.js'
 import { makeRecallNode } from './nodes/recall.node.js'
 import { makeAgentNode } from './nodes/agent.node.js'
+import { makeEvaluateNode } from './nodes/evaluate.node.js'
 import { makePersistNode } from './nodes/persist.node.js'
 import { routeAfterGuardrails, routeAfterAgent } from './nodes/edge-conditions.js'
 import { tools } from '../tools/index.js'
@@ -46,6 +47,10 @@ const AgentStateAnnotation = z.object({
 
   // Resposta final em texto (preenchida quando o agente para de chamar tools)
   finalAnswer: z.string().optional(),
+
+  // Fase "avaliar" — auto-avaliação fail-open (não bloqueia; sinaliza pro persist).
+  evalScore: z.number().optional(),
+  evalOk: z.boolean().optional(),
 })
 
 export type AgentState = z.infer<typeof AgentStateAnnotation>
@@ -75,6 +80,7 @@ export function buildAgentGraph(deps: AgentDeps) {
     .addNode('recall', makeRecallNode(longTerm, episodic, contextual))
     .addNode('agent', makeAgentNode(agentLlm, agentTools))
     .addNode('tools', toolNode)
+    .addNode('evaluate', makeEvaluateNode(memoryLlm))
     .addNode('persist', makePersistNode({ memoryLlm, longTerm, episodic, contextual, maxSteps: config.agent.reactMaxSteps }))
     .addEdge(START, 'guardrails')
     .addConditionalEdges('guardrails', (s: AgentState) => routeAfterGuardrails(s), {
@@ -84,12 +90,14 @@ export function buildAgentGraph(deps: AgentDeps) {
     .addEdge('blocked', END)
     .addEdge('recall', 'agent')
     // Loop ReAct: aplicação parcial do teto de steps (Configuration as Code).
-    // Ao terminar, passa por persist (escrita de memória) se houver memória ligada.
+    // Ao terminar, vai pra fase "avaliar" (evaluate), depois persist (se há memória).
     .addConditionalEdges('agent', (s: AgentState) => routeAfterAgent(s, config.agent.reactMaxSteps), {
       tools: 'tools',
-      end: memoryEnabled ? 'persist' : END,
+      end: 'evaluate',
     })
     .addEdge('tools', 'agent') // observação volta pro agente raciocinar
+    // ciclo: ...agir → AVALIAR → PERSISTIR. persist só se há memória ligada.
+    .addEdge('evaluate', memoryEnabled ? 'persist' : END)
     .addEdge('persist', END)
     .compile()
 }

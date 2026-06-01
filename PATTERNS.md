@@ -622,7 +622,7 @@ presets/reflection/    → generator ⇄ critic ; teto reflectionMaxIter
 Todo loop tem **teto explícito** em `config.ts` (`REACT_MAX_STEPS`, `reflectionMaxIter`) — Configuration as Code (P8). Sem teto, ReAct alucina e Reflection entra em loop infinito.
 
 ### Relação com o ciclo de referência
-O ciclo ideal de um agente com memória é `recuperar contexto → perceber → planejar → agir → avaliar → persistir`. Cada arquitetura **enfatiza fases diferentes** (nenhuma tem as 6 literais): ReAct cobre recuperar→agir→persistir e funde perceber/planejar/agir no nó `agent`; Plan-Execute destaca `planner`; Reflection personifica `avaliar` no `critic`. O ciclo é obedecido no agregado. Mapa completo em `docs/learning.md`.
+O ciclo de um agente com memória é `recuperar → perceber → planejar → agir → avaliar → persistir`. Os **3 presets cobrem o ciclo completo**: `recall` (recuperar) + nós da arquitetura (perceber/planejar/agir) + `evaluate` ou `critic` (avaliar) + `persist` (persistir). Diferenças: ReAct funde perceber/planejar/agir no `agent`; Plan-Execute usa memória enxuta (só filtro: LONGA+EPISÓDICA); Reflection usa o `critic` como fase avaliar + memória completa. `evaluate` é fail-open (registra qualidade, nunca bloqueia). Mapa em `docs/learning.md`.
 
 ### Quando usar
 Antes de escrever o grafo. Escolha a arquitetura pela natureza do problema (caminho aberto vs previsível vs qualidade crítica), depois scaffold com `/scaffold-architecture`.

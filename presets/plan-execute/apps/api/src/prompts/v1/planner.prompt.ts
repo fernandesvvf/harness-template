@@ -49,6 +49,10 @@ export function getPlannerSystemPrompt(maxSteps: number): string {
   })
 }
 
-export function getPlannerUserPrompt(question: string): string {
-  return JSON.stringify({ solicitacao: question, instrucao: 'Gere o plano de passos parametrizado.' })
+export function getPlannerUserPrompt(question: string, memoryContext?: string): string {
+  return JSON.stringify({
+    solicitacao: question,
+    ...(memoryContext ? { contexto_de_memoria: memoryContext } : {}),
+    instrucao: 'Gere o plano de passos parametrizado. Use o contexto de memória se ajudar.',
+  })
 }

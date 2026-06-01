@@ -7,7 +7,9 @@
     "dev": "tsx --env-file=.env watch src/server.ts",
     "build": "tsc --project tsconfig.json",
     "typecheck": "tsc --noEmit",
-    "eval": "tsx --env-file=.env evals/run.ts"
+    "eval": "tsx --env-file=.env evals/run.ts",
+    "smoke": "tsx --env-file=.env scripts/smoke-memory.ts",
+    "consolidate-lessons": "tsx --env-file=.env scripts/consolidate-lessons.ts"
   },
   "dependencies": {
     "@harness/types": "*",

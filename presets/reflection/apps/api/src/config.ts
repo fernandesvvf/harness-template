@@ -18,9 +18,15 @@ const EnvSchema = z.object({
   GENERATOR_MODEL: z.string().default('anthropic/claude-sonnet-4-6'),
   // critic = generator → self-reflection; critic = modelo maior → cross-reflection
   CRITIC_MODEL: z.string().default('anthropic/claude-sonnet-4-6'),
+  MEMORY_MODEL: z.string().default('anthropic/claude-haiku-4-5-20251001'),
 
   // Teto de iterações do critic loop — guarda loop infinito (P14)
   REFLECTION_MAX_ITER: z.coerce.number().default(3),
+
+  // Memória completa (LONGA + EPISÓDICA + CONTEXTUAL) — política no memory.md
+  MEMORY_DATABASE_URL: z.string().default('postgresql://harness:harness@localhost:5432/harness_memory'),
+  EMBEDDING_MODEL: z.string().default('openai/text-embedding-3-small'),
+  EMBEDDING_DIM: z.coerce.number().default(1536),
 
   API_VERSION: z.string().default('0.1.0'),
   HOST: z.string().default('0.0.0.0'),
@@ -52,10 +58,17 @@ export const config = {
     guardrails: parsed.data.GUARDRAILS_MODEL,
     generator: parsed.data.GENERATOR_MODEL,
     critic: parsed.data.CRITIC_MODEL,
+    memory: parsed.data.MEMORY_MODEL,
   },
 
   agent: {
     reflectionMaxIter: parsed.data.REFLECTION_MAX_ITER,
+  },
+
+  memory: {
+    databaseUrl: parsed.data.MEMORY_DATABASE_URL,
+    embeddingModel: parsed.data.EMBEDDING_MODEL,
+    embeddingDim: parsed.data.EMBEDDING_DIM,
   },
 
   server: {

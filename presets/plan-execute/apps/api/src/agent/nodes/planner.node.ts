@@ -9,7 +9,7 @@ export function makePlannerNode(llm: OpenRouterService, maxSteps: number) {
     try {
       const result = await llm.generateStructured(
         getPlannerSystemPrompt(maxSteps),
-        getPlannerUserPrompt(state.question ?? ''),
+        getPlannerUserPrompt(state.question ?? '', state.memoryContext),
         PlanSchema,
       )
       if (!result.success) {

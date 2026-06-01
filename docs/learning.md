@@ -90,23 +90,23 @@ recuperar contexto → perceber → planejar → agir → avaliar → persistir 
   "o que já sei"                                              "o que aprendi"
 ```
 
-Cada arquitetura **enfatiza fases diferentes** desse ciclo — nenhuma tem as 6 caixas literais, e isso é esperado. O mapa:
+Os **3 presets cobrem o ciclo completo**. Cada um implementa as 6 fases; o que muda é *como* (e quanta memória usa). O mapa:
 
 | Fase do ciclo | ReAct | Plan-Execute | Reflection |
 |---|---|---|---|
-| recuperar contexto | `recall` ✅ | — | — |
-| perceber | `agent` (junto) | `executor` | `generator` |
-| planejar | `agent` (junto) | `planner` ✅ | `generator` |
-| agir | `agent` ⇄ `tools` ✅ | `executor` ✅ | — |
-| **avaliar** | (implícito) | — | `critic` ✅ |
-| persistir memória | `persist` ✅ | — | — |
+| recuperar contexto | `recall` ✅ | `recall` ✅ | `recall` ✅ |
+| perceber | `agent` | `executor` | `generator` |
+| planejar | `agent` | `planner` ✅ | `generator` |
+| agir | `agent` ⇄ `tools` ✅ | `executor` ✅ | `generator` |
+| **avaliar** | `evaluate` ✅ | `evaluate` ✅ | `critic` ✅ |
+| persistir memória | `persist` ✅ | `persist` ✅ | `persist` ✅ |
 
 Leitura:
-- **ReAct** cobre o ciclo mais completo (recupera → age → persiste); funde perceber+planejar+agir no nó `agent` (é da natureza do ReAct).
-- **Plan-Execute** destaca **planejar** (`planner`); executa mecânico.
-- **Reflection** personifica **avaliar** (`critic`) — é a fase que define essa arquitetura.
+- **ReAct** funde perceber+planejar+agir no `agent` (natureza do ReAct); `evaluate` é auto-avaliação fail-open.
+- **Plan-Execute** destaca **planejar** (`planner`); memória **enxuta** (só LONGA + EPISÓDICA, busca por filtro — não usa CONTEXTUAL/semântica, que não casa com fluxo previsível).
+- **Reflection** personifica **avaliar** no `critic` (não precisa de `evaluate` separado); memória **completa** + reflexão evolutiva (critic reprova → vira lição).
 
-Ou seja: o ciclo é obedecido **no agregado**. A memória (recuperar/persistir) está ligada hoje no preset **react**; nos outros é opt-in.
+Decisão de arquitetura importante: **avaliar fail-open** (`evaluate`) nunca bloqueia — registra a qualidade e, se baixa, sinaliza pro `persist` aprender a lição. Memória é **opt-in** via `memory.md`: react já vem com tudo ligado; plan-execute e reflection vêm só com CURTA (ligue o resto conforme precisar).
 
 ---
 

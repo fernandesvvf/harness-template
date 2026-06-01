@@ -9,7 +9,7 @@ export function makeGeneratorNode(llm: OpenRouterService) {
     try {
       const result = await llm.generateStructured(
         getGeneratorSystemPrompt(),
-        getGeneratorUserPrompt(state.question ?? '', state.draft, state.critique),
+        getGeneratorUserPrompt(state.question ?? '', state.draft, state.critique, state.memoryContext),
         GeneratorSchema,
       )
       if (!result.success) {

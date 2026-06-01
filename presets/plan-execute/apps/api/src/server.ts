@@ -11,11 +11,15 @@ const agent = buildAgent()
 
 app.get('/health', async () => ({ status: 'ok', version: config.server.version }))
 
-app.post<{ Body: { question: string } }>('/chat', async (req, reply) => {
+app.post<{ Body: { question: string; scopeId?: string } }>('/chat', async (req, reply) => {
   const question = req.body?.question
   if (!question) return reply.code(400).send({ error: 'question é obrigatório' })
 
-  const result = await agent.invoke({ question })
+  const result = await agent.invoke({
+    question,
+    scopeId: req.body?.scopeId ?? 'global',
+    runId: `run-${Date.now()}`,
+  })
   return { answer: result.finalAnswer ?? '', blocked: result.isBlocked ?? false }
 })
 

@@ -22,9 +22,15 @@ export function getGeneratorSystemPrompt(): string {
   })
 }
 
-export function getGeneratorUserPrompt(task: string, previous?: string, critique?: string): string {
+export function getGeneratorUserPrompt(
+  task: string,
+  previous?: string,
+  critique?: string,
+  memoryContext?: string,
+): string {
   return JSON.stringify({
     tarefa: task,
+    ...(memoryContext ? { contexto_de_memoria: memoryContext } : {}),
     ...(previous ? { resposta_anterior: previous } : {}),
     ...(critique ? { critica_a_corrigir: critique } : {}),
     instrucao: critique ? 'Melhore a resposta corrigindo a crítica.' : 'Gere a resposta.',

@@ -37,7 +37,12 @@ function buildTranscript(messages: BaseMessage[], question: string, answer: stri
  * Reflexão evolutiva só extrai lição quando há surpresa (regra da aula).
  * Retorna o sinal (string) ou null se a execução foi normal.
  */
-function detectSurprise(messages: BaseMessage[], stepCount: number, maxSteps: number): string | null {
+function detectSurprise(
+  messages: BaseMessage[],
+  stepCount: number,
+  maxSteps: number,
+  evalOk: boolean | undefined,
+): string | null {
   // sinal 1: alguma tool retornou erro
   const toolError = messages.some(
     (m) => m instanceof ToolMessage && typeof m.content === 'string' && /erro|error|falha|not found|não encontrad/i.test(m.content),
@@ -46,6 +51,9 @@ function detectSurprise(messages: BaseMessage[], stepCount: number, maxSteps: nu
 
   // sinal 2: loop atingiu o teto de passos (não convergiu)
   if (stepCount >= maxSteps) return 'atingiu o teto de passos sem convergir'
+
+  // sinal 3: a fase avaliar reprovou a resposta (evalOk=false)
+  if (evalOk === false) return 'auto-avaliação reprovou a resposta'
 
   return null
 }
@@ -96,7 +104,7 @@ export function makePersistNode(deps: PersistDeps) {
     // Sinal vem do próprio run (erro de tool / teto de passos), sem LLM extra.
     // A lição é generalizável (regra da aula) e guardada como kind='lesson'.
     if (episodic && memoryLlm) {
-      const surprise = detectSurprise(msgs, state.stepCount ?? 0, maxSteps)
+      const surprise = detectSurprise(msgs, state.stepCount ?? 0, maxSteps, state.evalOk)
       if (surprise) {
         try {
           const res = await memoryLlm.generateStructured(

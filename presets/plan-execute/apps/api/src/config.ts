@@ -17,9 +17,13 @@ const EnvSchema = z.object({
   GUARDRAILS_MODEL: z.string().default('anthropic/claude-haiku-4-5-20251001'),
   PLANNER_MODEL: z.string().default('anthropic/claude-sonnet-4-6'),
   SYNTHESIZER_MODEL: z.string().default('anthropic/claude-sonnet-4-6'),
+  MEMORY_MODEL: z.string().default('anthropic/claude-haiku-4-5-20251001'),
 
   // Teto de passos do plano (Configuration as Code)
   PLANNER_MAX_STEPS: z.coerce.number().default(5),
+
+  // Memória (LONGA + EPISÓDICA — política no memory.md; aqui só infra)
+  MEMORY_DATABASE_URL: z.string().default('postgresql://harness:harness@localhost:5432/harness_memory'),
 
   API_VERSION: z.string().default('0.1.0'),
   HOST: z.string().default('0.0.0.0'),
@@ -51,10 +55,15 @@ export const config = {
     guardrails: parsed.data.GUARDRAILS_MODEL,
     planner: parsed.data.PLANNER_MODEL,
     synthesizer: parsed.data.SYNTHESIZER_MODEL,
+    memory: parsed.data.MEMORY_MODEL,
   },
 
   agent: {
     plannerMaxSteps: parsed.data.PLANNER_MAX_STEPS,
+  },
+
+  memory: {
+    databaseUrl: parsed.data.MEMORY_DATABASE_URL,
   },
 
   server: {
