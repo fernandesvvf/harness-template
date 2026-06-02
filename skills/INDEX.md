@@ -38,6 +38,18 @@ Os comandos ficam em `skills/commands/*.md`. Copie/symlinke pra `~/.claude/comma
 | `@harness/memory` | `packages/memory/` | 3 services de memória + contrato memory.md |
 | `@harness/types` | `packages/types/` | tipos compartilhados |
 
+## Documentação do projeto
+
+| Doc | Conteúdo |
+|---|---|
+| [docs/learning.md](../docs/learning.md) | conceitos do zero (iniciantes) |
+| [docs/evals-guide.md](../docs/evals-guide.md) | tutorial hands-on: criar/editar/rodar evals |
+| [docs/harness-architecture.md](../docs/harness-architecture.md) | diagrama da estrutura do harness |
+| `presets/*/architecture.md` | diagrama mermaid do grafo + evals de cada preset |
+| [PATTERNS.md](../PATTERNS.md) | princípios P1–P17 |
+| [PORTING.md](../PORTING.md) | trocar de stack (núcleo portável vs adapter) |
+| [KNOWN_ISSUES.md](../KNOWN_ISSUES.md) | validado em runtime + limitações conhecidas |
+
 ## Como adicionar uma skill
 
 1. Crie `skills/commands/<nome>.md` (frontmatter `description` + `argument-hint`, seções Contexto / Padrão Obrigatório / Passos / Checklist).

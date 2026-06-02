@@ -2,6 +2,9 @@
 
 Princípio: P15 (Comportamento Verificado por Harness). Pacote: `@harness/harness`.
 
+> Tutorial hands-on (criar/editar/rodar): [docs/evals-guide.md](../docs/evals-guide.md).
+> Estrutura interna (diagrama): [docs/harness-architecture.md](../docs/harness-architecture.md).
+
 ---
 
 ## As 3 peças
